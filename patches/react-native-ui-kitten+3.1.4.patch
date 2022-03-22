@@ -1,0 +1,39 @@
+diff --git a/node_modules/react-native-ui-kitten/src/components/button/rkButton.js b/node_modules/react-native-ui-kitten/src/components/button/rkButton.js
+index 791e5dc..40e9606 100644
+--- a/node_modules/react-native-ui-kitten/src/components/button/rkButton.js
++++ b/node_modules/react-native-ui-kitten/src/components/button/rkButton.js
+@@ -146,7 +146,7 @@ export class RkButton extends RkComponent {
+       PropTypes.arrayOf(PropTypes.node),
+       PropTypes.node,
+     ]),
+-    touchable: PropTypes.func,
++    touchable: PropTypes.any,
+   };
+   static defaultProps = {
+     style: null,
+diff --git a/node_modules/react-native-ui-kitten/src/components/choice/rkChoice.js b/node_modules/react-native-ui-kitten/src/components/choice/rkChoice.js
+index 9c62e3d..6dd80e0 100644
+--- a/node_modules/react-native-ui-kitten/src/components/choice/rkChoice.js
++++ b/node_modules/react-native-ui-kitten/src/components/choice/rkChoice.js
+@@ -214,7 +214,7 @@ export class RkChoice extends RkComponent {
+     };
+   }
+ 
+-  componentWillReceiveProps(nextProps) {
++  UNSAFE_componentWillReceiveProps(nextProps) {
+     if (nextProps.selected !== this.state.selected) {
+       this.setState({ selected: nextProps.selected });
+     }
+diff --git a/node_modules/react-native-ui-kitten/src/components/choiceGroup/rkChoiceGroup.js b/node_modules/react-native-ui-kitten/src/components/choiceGroup/rkChoiceGroup.js
+index 6f7fcb5..fc8dff6 100644
+--- a/node_modules/react-native-ui-kitten/src/components/choiceGroup/rkChoiceGroup.js
++++ b/node_modules/react-native-ui-kitten/src/components/choiceGroup/rkChoiceGroup.js
+@@ -149,7 +149,7 @@ export class RkChoiceGroup extends RkComponent {
+     }
+   }
+ 
+-  componentWillMount() {
++  UNSAFE_componentWillMount() {
+     let index = 0;
+     const process = (child) => {
+       if (child.type === RkChoice && this.choice[index] === undefined) {

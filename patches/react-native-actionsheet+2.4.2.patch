@@ -1,0 +1,32 @@
+diff --git a/node_modules/react-native-actionsheet/lib/ActionSheetCustom.js b/node_modules/react-native-actionsheet/lib/ActionSheetCustom.js
+index 7a0fc35..6cb6669 100644
+--- a/node_modules/react-native-actionsheet/lib/ActionSheetCustom.js
++++ b/node_modules/react-native-actionsheet/lib/ActionSheetCustom.js
+@@ -24,7 +24,7 @@ class ActionSheet extends React.Component {
+     }
+   }
+ 
+-  componentWillReceiveProps (nextProps) {
++  UNSAFE_componentWillReceiveProps (nextProps) {
+     this.translateY = this._calculateHeight(nextProps)
+   }
+ 
+@@ -68,14 +68,16 @@ class ActionSheet extends React.Component {
+     Animated.timing(this.state.sheetAnim, {
+       toValue: 0,
+       duration: 250,
+-      easing: Easing.out(Easing.ease)
++      easing: Easing.out(Easing.ease),
++      useNativeDriver: true
+     }).start()
+   }
+ 
+   _hideSheet (callback) {
+     Animated.timing(this.state.sheetAnim, {
+       toValue: this.translateY,
+-      duration: 200
++      duration: 200,
++      useNativeDriver: true
+     }).start(callback)
+   }
+ 

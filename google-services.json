@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "948632369964",
+    "firebase_url": "https://aibolit-2ec88-default-rtdb.firebaseio.com",
+    "project_id": "aibolit-2ec88",
+    "storage_bucket": "aibolit-2ec88.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:948632369964:android:d5fa84effd28d95bba4a89",
+        "android_client_info": {
+          "package_name": "vn.thinklabs.hoabinh_thospital"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "948632369964-3n5ikmsbou67ak2gp83iv7kdsg66jchv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHzUzcqtAsZdKv5VG7UZV6wojGdoM2AYw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "948632369964-3n5ikmsbou67ak2gp83iv7kdsg66jchv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "948632369964-cnbdhbu2vnh95e93a7eli9m4edn05g28.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "vn.thinklabs.aibolitmobile"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

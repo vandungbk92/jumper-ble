@@ -1,0 +1,54 @@
+{
+  "expo": {
+    "name": "tHospital",
+    "slug": "tHospital",
+    "privacy": "public",
+    "version": "1.0.1",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "notification": {
+      "icon": "./assets/icon-notification.png"
+    },
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "vn.thinklabs.thospital",
+      "buildNumber": "1.0.1",
+      "supportsTablet": true,
+      "requireFullScreen": false,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Ứng dụng sử dụng camera để đính kèm ảnh vào câu hỏi hoặc góp ý",
+        "NSPhotoLibraryUsageDescription": "Ứng dụng cần truy cập thư viện ảnh để đính kèm ảnh vào câu hỏi hoặc góp ý"
+      },
+      "usesIcloudStorage": true,
+      "userInterfaceStyle": "automatic"
+    },
+    "android": {
+      "package": "vn.thinklabs.thospital",
+      "versionCode": 1,
+      "useNextNotificationsApi": true,
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "CAMERA"
+      ],
+      "googleServicesFile": "./google-services.json",
+      "userInterfaceStyle": "automatic"
+    },
+    "description": ""
+  }
+}
