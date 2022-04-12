@@ -163,7 +163,7 @@ const AppNavigator = createStackNavigator(
 
         [PULSEOXIMETER_PAGE]: {
             screen: PulseOximeter,
-            navigationOptions: ({navigation}) => {
+            /*navigationOptions: ({navigation}) => {
                 return {
                     headerLeft: () => (
                         <TouchableOpacity
@@ -179,7 +179,7 @@ const AppNavigator = createStackNavigator(
                         </RkText>
                     )
                 }
-            }
+            }*/
         }
     },
     {

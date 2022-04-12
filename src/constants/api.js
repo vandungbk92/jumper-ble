@@ -114,4 +114,5 @@ export const API = {
   KETQUAKHAMBENH: '/api/ket-qua-kham',
   KETQUAKHAMBENH_ID: '/api/ket-qua-kham/{0}',
   KETQUAKHAMBENH_QUERY: '/api/benhnhan/ketquakham?page={0}&limit={1}{2}',
+  PULSE_OXIMETER: '/api/pulse-oximeter',
 };

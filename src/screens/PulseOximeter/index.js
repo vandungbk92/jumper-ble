@@ -1,5 +1,5 @@
-import {useEffect, useState} from "react";
-import {View, Text} from "react-native";
+import React, {useEffect, useState} from "react";
+import {View, Text, TouchableOpacity} from "react-native";
 import {BleManager} from "react-native-ble-plx";
 import GradientButton from "../base/gradientButton";
 import {Buffer} from "buffer";
@@ -9,12 +9,23 @@ import I18n from "../../utilities/I18n";
 import {styleContainer} from "../../stylesContainer";
 import {postOximeterData} from "../../epics-reducers/services/oximeterServices";
 import {showToast} from "../../epics-reducers/services/common";
+import {Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
+import {KittenTheme} from "../../../config/theme";
+import {RkText} from "react-native-ui-kitten";
 
 const manager = new BleManager();
 export default function PulseOximeter(props) {
+
+
     const [device, setDevice] = useState(null);
     const [status, setStatus] = useState(null);
     const [deviceData, setDeviceData] = useState(null);
+
+    useEffect(() => {
+        props.navigation.setParams({
+            onReadAllPress: onReadAllPress
+        });
+    }, [])
 
     useEffect(() => {
         manager.onStateChange((state) => {
@@ -28,6 +39,8 @@ export default function PulseOximeter(props) {
         });
     }, [manager]);
 
+    const onReadAllPress = () => {props.navigation.goBack(null)}
+
     const scanAndConnect = () => {
         setDeviceData(null)
         manager.startDeviceScan(null, null, (error, device) => {
@@ -35,6 +48,7 @@ export default function PulseOximeter(props) {
                 return;
             }
             setStatus("Đang quét...")
+            console.log(device.id, device.name, 'device')
             if (device.id === "40:2E:71:47:0A:1F") {
                 connectDevice(device);
                 manager.stopDeviceScan();
@@ -149,3 +163,24 @@ export default function PulseOximeter(props) {
         </View>
     );
 }
+
+PulseOximeter.navigationOptions = ({ navigation }) => ({
+    headerLeft: () => (
+      <TouchableOpacity
+        style={styleContainer.headerButton}
+        onPress={navigation.getParam('onReadAllPress')}
+      >
+          <Ionicons
+            name="ios-arrow-back"
+            size={20}
+            color={KittenTheme.colors.appColor}
+          />
+      </TouchableOpacity>
+    ),
+    headerTitle: () => (
+      <RkText rkType="header4">
+          {I18n.t('Oximeter')}
+      </RkText>
+    )
+});
+
