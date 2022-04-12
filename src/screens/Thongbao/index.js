@@ -15,13 +15,25 @@ import { KittenTheme } from '../../../config/theme';
 import { styleContainer } from '../../stylesContainer';
 
 class ThongbaoPage extends React.Component {
-  static navigationOptions = {
-    headerTitle: () => (
-      <RkText rkType="header4">
-        {I18n.t('THÔNG BÁO')}
-      </RkText>
+  static navigationOptions = ({ navigation }) => ({
+    headerLeft: () => (
+        <TouchableOpacity
+            style={styleContainer.headerButton}
+            onPress={() => navigation.goBack(null)}
+        >
+          <Ionicons
+              name="ios-arrow-back"
+              size={20}
+              color={KittenTheme.colors.appColor}
+          />
+        </TouchableOpacity>
     ),
-  };
+    headerTitle: () => (
+        <RkText rkType="header4">
+          {I18n.t('Thông báo')}
+        </RkText>
+    ),
+  });
 
   navigateItem = (router) => () => {
     if (router === THONGBAO_CANHAN && !this.props.userInfoRes?._id) {
@@ -43,11 +55,6 @@ class ThongbaoPage extends React.Component {
             <RkText rkType="header4">
               {item.title}
             </RkText>
-            {/* <View style={[tw.pX1, tw.pYPx, tw.bgRed500, tw.roundedFull]}>
-              <RkText rkType="bold" style={tw.textWhite}>
-                +99
-              </RkText>
-            </View> */}
           </View>
           <RkText style={[tw.mT1, tw.textGray600, tw.textBase]}>
             {item.description}

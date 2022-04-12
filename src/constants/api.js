@@ -3,10 +3,10 @@ export const API = {
   API_IMAGE: '/api/files/{0}',
   API_FILE: '/api/files/files/{0}',
   API_FILE_HISSYNC: '/files/hissync?fileNm={0}',
-  USER_DANGNHAP: '/api/benhnhan/dang-nhap',
-  USER_TAIKHOAN: '/api/benhnhan/tai-khoan',
+  USER_DANGNHAP: '/api/users/login',
+  USER_TAIKHOAN: '/api/users/tai-khoan',
 
-  USER_ME: '/api/benhnhan/me',
+  USER_ME: '/api/users/me',
   PUT_USER_INFO: '/api/benhnhan/info',
   OTP_CREATE: '/api/otp/create',
   OTP_CONFIRM: '/api/otp/confirm',

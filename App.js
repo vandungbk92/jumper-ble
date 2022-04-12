@@ -18,7 +18,6 @@ import rootReducer from './src/epics-reducers/rootReducer';
 import rootEpic from './src/epics-reducers/rootEpic';
 import { setStoreInstance } from './src/epics-reducers/store';
 import { CONSTANTS } from './src/constants/constants';
-import { fetchThongtinchungRequest } from './src/epics-reducers/fetch/fetch-thongtinchung.duck';
 import Navigator from './src/utilities/Navigator';
 import I18n, { I18nProvider } from './src/utilities/I18n';
 import { registerPushNotifications } from './src/utilities/PushNotify';
@@ -39,7 +38,7 @@ bootstrap();
 extendFunction(store);
 setStoreInstance(store);
 
-configureFirebase();
+// configureFirebase();
 
 export default class App extends React.Component {
   constructor(props) {
@@ -51,7 +50,6 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     await registerPushNotifications();
-    store.dispatch(fetchThongtinchungRequest());
     this.updatesSubscription = Updates.addListener(this._handleUpdatesChange);
   }
 

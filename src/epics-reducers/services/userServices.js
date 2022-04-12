@@ -4,8 +4,9 @@ import {getDeviceToken} from '../../utilities/PushNotify';
 
 export function userLogin(data) {
   return axios
-    .post(`${COMMON_APP.HOST_API}${API.USER_DANGNHAP}`, {...data, device_token: getDeviceToken()})
+    .post(`${COMMON_APP.HOST_API}${API.USER_DANGNHAP}`, data)
     .then((res) => {
+        console.log(res)
       if (res.data) {
         return res.data;
       } else {

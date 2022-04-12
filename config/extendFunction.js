@@ -18,7 +18,7 @@ export const extendFunction = (store) => {
     }
 
     apiReq++;
-    
+
     let token = store.getState().loginRes.token
     if (token) {
       config.headers["Authorization"] = 'Bearer ' + token
@@ -36,7 +36,6 @@ export const extendFunction = (store) => {
     if (apiRes === apiReq && isLoading) {
       store.dispatch(fetchLoading(false))
     }
-
     if (apiRes === apiReq && res.data.success === false) {
       let message = res.data && res.data.message ? res.data.message : I18n.t("show_error")
       res.data = null
@@ -50,7 +49,6 @@ export const extendFunction = (store) => {
     if (apiRes === apiReq && isLoading) {
       store.dispatch(fetchLoading(false))
     }
-
     if (error.response && error.response.status === 401) {
       store.dispatch(fetchLoginFailure({}))
       store.dispatch(fetchUsersInfoFailure({}))

@@ -11,7 +11,6 @@ import FormGroup from '../base/formGroup';
 import I18n from '../../utilities/I18n';
 import { KittenTheme } from '../../../config/theme';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { getDmPhai } from '../../epics-reducers/services/danhmucServices';
 import { tw } from 'react-native-tailwindcss';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationEvents } from 'react-navigation';
@@ -61,21 +60,13 @@ class RegisterPage extends React.Component {
       taikhoan: '',
       matkhau: '',
       matkhau1: '',
-      
+
       hoten: data?.hoten || '',
       ngaysinh: data?.ngaysinh || '',
       maphai: data?.maphai?._id || '',
       dienthoai: data?.dienthoai || '',
       email: data?.email || '',
-
-      dmphai: [],
     };
-  }
-
-  async componentDidMount() {
-    const tasks = [getDmPhai()];
-    const [dmphai] = await Promise.all(tasks);
-    this.setState({ dmphai: dmphai?.docs || [] });
   }
 
   navigationDidFocus = async () => {
@@ -118,7 +109,7 @@ class RegisterPage extends React.Component {
       showToast(I18n.t('re_enter_the_password_incorrectly'));
       return;
     }
- 
+
     const dataRequest = {
       taikhoan: this.state.taikhoan,
       matkhau: this.state.matkhau,
@@ -233,7 +224,6 @@ class RegisterPage extends React.Component {
             <FormGroup
               id="maphai"
               type={CONSTANTS.RADIO}
-              data={this.state.dmphai}
               value={this.state.maphai}
               required={true}
               displayKey="tenphai"

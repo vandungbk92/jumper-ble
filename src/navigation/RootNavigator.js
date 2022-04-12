@@ -28,7 +28,7 @@ import {
     CHANGE_PASSWORD_PAGE,
     THONGBAO_PAGE,
     THONGBAO_CANHAN,
-    THONGBAO_CONGDONG, SPO2_PAGE,
+    THONGBAO_CONGDONG, SPO2_PAGE, UPLOAD_PAGE, VIDEO_PAGE, AUDIO_PAGE, PULSEOXIMETER_PAGE,
 } from '../constants/router';
 
 import {getStoreInstance} from '../epics-reducers/store';
@@ -59,11 +59,14 @@ import ChangePasswordPage from '../screens/Canhan/ChangePassword';
 import ThongbaoScreen from '../screens/Thongbao';
 import ThongbaoCanhan from '../screens/Thongbao/Canhan';
 import ThongbaoCongdong from '../screens/Thongbao/Congdong';
-import SPO2Screen from "../screens/SPO2";
-import {styleContainer} from "../stylesContainer";
+import UploadScreen from "../screens/Upload";
+import VideoUpload from "../screens/Upload/components/VideoUpload";
+import AudioUpload from "../screens/Upload/components/AudioUpload";
 import {Ionicons} from "@expo/vector-icons";
-import {KittenTheme} from "../../config/theme";
+import {styleContainer} from "../stylesContainer";
 import {RkText} from "react-native-ui-kitten";
+import {KittenTheme} from "../../config/theme";
+import PulseOximeter from "../screens/PulseOximeter";
 
 const DrawerNavigator = createDrawerNavigator(
     {
@@ -103,26 +106,7 @@ const AppNavigator = createStackNavigator(
 
         [HOME_PAGE]: HomeScreen,
         [PROFILE_PAGE]: UserProfileScreen,
-        [SPO2_PAGE]: {
-            screen: SPO2Screen,
-            navigationOptions: ({navigation}) => {
-                return {
-                    headerLeft: () => (
-                        <TouchableOpacity
-                            style={styleContainer.headerButton}
-                            onPress={() => navigation.goBack(null)}
-                        >
-                            <Ionicons name="ios-arrow-back" size={20} color={KittenTheme.colors.appColor}/>
-                        </TouchableOpacity>
-                    ),
-                    headerTitle: () => (
-                        <RkText rkType="header4">
-                            Đo SpO2
-                        </RkText>
-                    )
-                }
-            }
-        },
+
         [IMAGE_BROWSER_PAGE]: ImageBrowserScreen,
         [VIEW_IMAGE_PAGE]: ViewImageScreen,
 
@@ -136,6 +120,67 @@ const AppNavigator = createStackNavigator(
         [THONGBAO_CANHAN]: ThongbaoCanhan,
         [THONGBAO_CONGDONG]: ThongbaoCongdong,
 
+        [UPLOAD_PAGE]: UploadScreen, [VIDEO_PAGE]: {
+            screen: VideoUpload,
+            navigationOptions: ({navigation}) => {
+                return {
+                    headerLeft: () => (
+                        <TouchableOpacity
+                            style={styleContainer.headerButton}
+                            onPress={() => navigation.goBack(null)}
+                        >
+                            <Ionicons name="ios-arrow-back" size={20} color={KittenTheme.colors.appColor}/>
+                        </TouchableOpacity>
+                    ),
+                    headerTitle: () => (
+                        <RkText rkType="header4">
+                            Video
+                        </RkText>
+                    )
+                }
+            }
+        },
+        [AUDIO_PAGE]: {
+            screen: AudioUpload,
+            navigationOptions: ({navigation}) => {
+                return {
+                    headerLeft: () => (
+                        <TouchableOpacity
+                            style={styleContainer.headerButton}
+                            onPress={() => navigation.goBack(null)}
+                        >
+                            <Ionicons name="ios-arrow-back" size={20} color={KittenTheme.colors.appColor}/>
+                        </TouchableOpacity>
+                    ),
+                    headerTitle: () => (
+                        <RkText rkType="header4">
+                            Audio
+                        </RkText>
+                    )
+                }
+            }
+        },
+
+        [PULSEOXIMETER_PAGE]: {
+            screen: PulseOximeter,
+            navigationOptions: ({navigation}) => {
+                return {
+                    headerLeft: () => (
+                        <TouchableOpacity
+                            style={styleContainer.headerButton}
+                            onPress={() => navigation.goBack(null)}
+                        >
+                            <Ionicons name="ios-arrow-back" size={20} color={KittenTheme.colors.appColor}/>
+                        </TouchableOpacity>
+                    ),
+                    headerTitle: () => (
+                        <RkText rkType="header4">
+                            Máy đo
+                        </RkText>
+                    )
+                }
+            }
+        }
     },
     {
         headerMode: 'screen',

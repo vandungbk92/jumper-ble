@@ -18,7 +18,6 @@ import GradientButton from '../base/gradientButton';
 import { KittenTheme } from '../../../config/theme';
 import { styleContainer } from '../../stylesContainer';
 
-import { getDmPhai } from '../../epics-reducers/services/danhmucServices';
 import { putUserInfoByToken } from '../../epics-reducers/services/userServices';
 import { showToast, checkValidate } from '../../epics-reducers/services/common';
 
@@ -61,28 +60,14 @@ class CanhanPage extends React.Component {
     super(props);
     const data = props.userInfoRes;
     this.state = {
-      taikhoan: data?.taikhoan || '',
+      taikhoan: data?.username || '',
 
-      hoten: data?.hoten || '',
-      ngaysinh: data?.ngaysinh || '',
-      maphai: data?.maphai?._id || '',
-      dienthoai: data?.dienthoai || '',
-      email: data?.email || '',
-
-      dmphai: [],
+      hoten: data?.full_name || '',
+      ngaysinh: data?.birthday || '',
+      dienthoai: data?.phone || '',
+      email: data?.email || ''
     };
     props.navigation?.setParams({ onFormSubmit: this.onFormSubmit });
-  }
-
-  async componentDidMount() {
-    try {
-      const tasks = [getDmPhai()];
-      const [dmphai] = await Promise.all(tasks);
-      this.setState({
-        dmphai: dmphai?.docs || [],
-      });
-    } catch (e) {
-    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -100,7 +85,6 @@ class CanhanPage extends React.Component {
       {value: this.state.dienthoai, type: CONSTANTS.REQUIRED, alert: I18n.t('phone')},
       {value: this.state.dienthoai, type: CONSTANTS.PHONE},
       {value: this.state.email, type: CONSTANTS.EMAIL},
-      {value: this.state.maphai, type: CONSTANTS.REQUIRED, alert: I18n.t('Giới tính')},
     ];
     if (!checkValidate(dataValidate)) return;
 
@@ -108,7 +92,6 @@ class CanhanPage extends React.Component {
       hoten: this.state.hoten,
       ngaysinh: this.state.ngaysinh,
       email: this.state.email,
-      maphai: this.state.maphai,
     };
 
     const benhnhan = await putUserInfoByToken(dataRequest);
@@ -183,19 +166,9 @@ class CanhanPage extends React.Component {
               autoCapitalize="none"
               onChangeText={(id, value) => this.setState({[id]: value})}
             />
-            <FormGroup
-              id="maphai"
-              type={CONSTANTS.RADIO}
-              data={this.state.dmphai}
-              value={this.state.maphai}
-              required={true}
-              displayKey="tenphai"
-              placeholder={I18n.t('Giới tính')}
-              onChange={(id, selected) => this.setState({[id]: selected._id})}
-            />
             <GradientButton
               text="Thay đổi mật khẩu"
-              style={[]}
+              style={[tw.mT2]}
               onPress={() => this.props.navigation.navigate(CHANGE_PASSWORD_PAGE)}
             />
             <GradientButton

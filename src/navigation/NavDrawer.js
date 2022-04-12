@@ -33,7 +33,7 @@ const NavDrawer = (props) => (
       />
       {props.userInfoRes?._id ? (
         <View style={[tw.flex1, tw.pX2]}>
-          <RkText rkType="header4">{props.userInfoRes?.hoten}</RkText>
+          <RkText rkType="header4">{props.userInfoRes?.full_name}</RkText>
           <RkText style={[tw.textBase, tw.textGray600]}>
             Thông tin cá nhân
           </RkText>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Image, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { RkText, RkButton, RkTextInput } from 'react-native-ui-kitten';
 import GradientButton from '../base/gradientButton';
 import { CONSTANTS } from '../../constants';
@@ -9,7 +8,7 @@ import { connect } from 'react-redux';
 import { styleContainer } from '../../stylesContainer';
 import { KittenTheme } from '../../../config/theme';
 import { showToast, checkValidate } from '../../epics-reducers/services/common';
-import { APP_NAVIGATOR, LOGIN_PAGE, LOGIN_PHONE_PAGE, REGISTER_PAGE, FORGET_PASSWORD_PAGE, PHONE_VERIFICATION_PAGE } from '../../constants/router';
+import { LOGIN_PAGE, LOGIN_PHONE_PAGE, REGISTER_PAGE, FORGET_PASSWORD_PAGE, PHONE_VERIFICATION_PAGE } from '../../constants/router';
 import { DEVICE_HEIGHT, STATUS_BAR_HEIGHT } from '../../constants/variable';
 import I18n from '../../utilities/I18n';
 import { userLogin, getUserInfo, verifyUserPhone } from '../../epics-reducers/services/userServices';
@@ -60,8 +59,8 @@ class LoginPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: '', // nguyendao
-      password: '', // 123456
+      username: '',
+      password: '',
     };
   }
 
@@ -90,17 +89,13 @@ class LoginPage extends React.Component {
     if (!checkValidate(dataValidate)) return;
 
     const dataRequest = {
-      taikhoan: this.state.username,
-      matkhau: this.state.password,
+      username: this.state.username,
+      password: this.state.password,
     };
     const data = await userLogin(dataRequest);
     if (data && data.token) {
-      if (data.change) {
-        this.props.navigation.navigate(PHONE_VERIFICATION_PAGE, { route: LOGIN_PAGE, phone1: data.dienthoai });
-      } else {
-        this.props.dispatch(fetchLoginSuccess({ token: data.token }));
-        this.props.navigation.goBack(null);
-      }
+      this.props.dispatch(fetchLoginSuccess({ token: data.token }));
+      this.props.navigation.goBack(null);
     }
   }
 
@@ -110,7 +105,7 @@ class LoginPage extends React.Component {
     return (
       <SafeAreaView style={styleContainer.containerContent}>
         <NavigationEvents
-          onDidFocus={this.navigationDidFocus}
+          // onDidFocus={this.navigationDidFocus}
           onDidBlur={this.navigationDidBlur}
         />
         <KeyboardAwareScrollView contentContainerStyle={{ flex: 1 }}>
@@ -152,16 +147,11 @@ class LoginPage extends React.Component {
                     Đăng ký
                   </RkText>
                 </RkButton>
-                <RkButton rkType="clear" onPress={() => this.props.navigation.navigate(LOGIN_PHONE_PAGE)}>
-                  <RkText rkType="italic" style={[tw.textLg]}>
-                    Đăng nhập SMS
-                  </RkText>
-                </RkButton>
-              </View>
-              <View style={[styles.textRow, { marginTop: 10, justifyContent: 'flex-end' }]}>
-                <RkButton rkType="clear" onPress={() => this.props.navigation.navigate(FORGET_PASSWORD_PAGE)}>
-                  <RkText rkType="italic" style={[tw.textLg]}>Quên mật khẩu</RkText>
-                </RkButton>
+                {/*<RkButton rkType="clear" onPress={() => this.props.navigation.navigate(FORGET_PASSWORD_PAGE)}>*/}
+                {/*  <RkText rkType="italic" style={[tw.textLg]}>*/}
+                {/*    Quên mật khẩu*/}
+                {/*  </RkText>*/}
+                {/*</RkButton>*/}
               </View>
             </View>
           </View>
