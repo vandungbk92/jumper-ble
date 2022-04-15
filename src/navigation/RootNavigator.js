@@ -28,7 +28,7 @@ import {
     CHANGE_PASSWORD_PAGE,
     THONGBAO_PAGE,
     THONGBAO_CANHAN,
-    THONGBAO_CONGDONG, SPO2_PAGE, UPLOAD_PAGE, VIDEO_PAGE, AUDIO_PAGE, PULSEOXIMETER_PAGE,
+    THONGBAO_CONGDONG, SPO2_PAGE, UPLOAD_PAGE, VIDEO_PAGE, AUDIO_PAGE, PULSEOXIMETER_PAGE, HISTORY_PAGE, SETTINGS_PAGE,
 } from '../constants/router';
 
 import {getStoreInstance} from '../epics-reducers/store';
@@ -67,6 +67,8 @@ import {styleContainer} from "../stylesContainer";
 import {RkText} from "react-native-ui-kitten";
 import {KittenTheme} from "../../config/theme";
 import PulseOximeter from "../screens/PulseOximeter";
+import HistoryScreen from "../screens/PulseOximeter/components/HistoryScreen";
+import SettingsScreen from "../screens/Settings";
 
 const DrawerNavigator = createDrawerNavigator(
     {
@@ -163,24 +165,9 @@ const AppNavigator = createStackNavigator(
 
         [PULSEOXIMETER_PAGE]: {
             screen: PulseOximeter,
-            /*navigationOptions: ({navigation}) => {
-                return {
-                    headerLeft: () => (
-                        <TouchableOpacity
-                            style={styleContainer.headerButton}
-                            onPress={() => navigation.goBack(null)}
-                        >
-                            <Ionicons name="ios-arrow-back" size={20} color={KittenTheme.colors.appColor}/>
-                        </TouchableOpacity>
-                    ),
-                    headerTitle: () => (
-                        <RkText rkType="header4">
-                            Máy đo
-                        </RkText>
-                    )
-                }
-            }*/
-        }
+        },
+        [HISTORY_PAGE]: HistoryScreen,
+        [SETTINGS_PAGE]: SettingsScreen
     },
     {
         headerMode: 'screen',

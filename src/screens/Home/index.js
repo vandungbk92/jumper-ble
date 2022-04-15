@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {COMMON_APP, CONSTANTS} from '../../constants';
 import {
-    LOGIN_PAGE, PULSEOXIMETER_PAGE, UPLOAD_PAGE,
+    LOGIN_PAGE, PULSEOXIMETER_PAGE, SETTINGS_PAGE, UPLOAD_PAGE,
 } from '../../constants/router';
 
 import {isEmpty} from '../../epics-reducers/services/common';
@@ -142,10 +142,11 @@ class HomePage extends React.Component {
                         <View style={[tw.p1, tw.w1_3, {minHeight: 120}]}>
                             <TouchableOpacity
                                 style={[tw.flex1, tw.rounded, {backgroundColor: '#ece69e'}]}
+                                onPress={() => this.preventBeforeLogin(SETTINGS_PAGE)}
                             >
                                 <KetQuaCanLamSangIcon style={tw.absolute}/>
                                 <RkText style={[tw.p4, tw.textLg]}>
-
+                                    Cài đặt
                                 </RkText>
                             </TouchableOpacity>
                         </View>
