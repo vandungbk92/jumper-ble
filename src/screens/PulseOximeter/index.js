@@ -82,18 +82,22 @@ export default function PulseOximeter(props) {
     };
 
     const scanAndConnect = () => {
-        setDeviceData(null);
-        manager.startDeviceScan(null, null, (error, device) => {
-            if (error) {
-                return;
-            }
-            setStatus("Đang quét...");
-            console.log(device.name);
-            if (device.id === "40:2E:71:47:0A:1F") {
-                connectDevice(device);
-                manager.stopDeviceScan();
-            }
-        });
+        if(manager) {
+
+            setDeviceData(null);
+            manager.startDeviceScan(null, null, (error, device) => {
+                if (error) {
+                    return;
+                }
+                setStatus("Đang quét...");
+                if (device.id === "40:2E:71:47:0A:1F") {
+                    connectDevice(device);
+                    manager.stopDeviceScan();
+                }
+            });
+        }else{
+            manager = new BleManager()
+        }
     };
 
     const connectDevice = (device) => {
@@ -192,8 +196,8 @@ export default function PulseOximeter(props) {
     };
 
     const disconnect = () => {
-        setStopMonitoring(true);
         if (device)
+            setStopMonitoring(true);
             if (device.isConnected) {
                 setDeviceData(null);
                 setDevice(null);
@@ -213,31 +217,26 @@ export default function PulseOximeter(props) {
 
     const onDestroyBLE = () => {
         try {
-            stopSound()
-                .then((r) => {
-                    console.log(r);
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-            if (device)
-                if (device.isConnected) {
-                    setDeviceData(null);
-                    setDevice(null);
-                    setStatus(null);
-                    manager.cancelDeviceConnection(device.id).then((res) => {
-                        console.log("Manager cancel connection");
-                    });
-                    setDevice(null);
-                    setDeviceData(null);
-                } else {
-                    setDeviceData(null);
-                    setDevice(null);
-                    setStatus(null);
-                }
-
-            manager.stopDeviceScan();
-            manager.destroy();
+            // stopSound()
+            // if (device)
+            //     if (device.isConnected) {
+            //         setDeviceData(null);
+            //         setDevice(null);
+            //         setStatus(null);
+            //         manager.cancelDeviceConnection(device.id).then((res) => {
+            //             console.log("Manager cancel connection");
+            //         });
+            //         setDevice(null);
+            //         setDeviceData(null);
+            //     } else {
+            //         setDeviceData(null);
+            //         setDevice(null);
+            //         setStatus(null);
+            //     }
+            //
+            // manager.stopDeviceScan();
+            // manager.destroy();
+            disconnect()
         } catch (err) {
             console.log(err);
         }
