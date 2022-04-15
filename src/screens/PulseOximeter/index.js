@@ -25,6 +25,7 @@ export default function PulseOximeter(props) {
     const [isWarning, setIsWarning] = useState(false);
     const [warningValues, setWarningValues] = useState();
     const [stopMonitoring, setStopMonitoring] = useState(false);
+    const [time, setTime] = useState(0)
     useEffect(() => {
         props.navigation.setParams({
             onReadAllPress: onReadAllPress,
@@ -82,22 +83,18 @@ export default function PulseOximeter(props) {
     };
 
     const scanAndConnect = () => {
-        if(manager) {
 
-            setDeviceData(null);
-            manager.startDeviceScan(null, null, (error, device) => {
-                if (error) {
-                    return;
-                }
-                setStatus("Đang quét...");
-                if (device.id === "40:2E:71:47:0A:1F") {
-                    connectDevice(device);
-                    manager.stopDeviceScan();
-                }
-            });
-        }else{
-            manager = new BleManager()
-        }
+        setStatus("Đang quét...");
+        setDeviceData(null);
+        manager.startDeviceScan(null, null, (error, device) => {
+            if (error) {
+                return;
+            }
+            if (device.id === "40:2E:71:47:0A:1F") {
+                connectDevice(device);
+                manager.stopDeviceScan();
+            }
+        });
     };
 
     const connectDevice = (device) => {
@@ -162,6 +159,12 @@ export default function PulseOximeter(props) {
         }
     };
 
+    const timer = () => {
+        setTimeout(() => {
+            setTime(time + 1)
+        }, 1000)
+    }
+
     const process = async (data) => {
         const oxiData = {
             oxigenSaturation: data[2],
@@ -175,8 +178,13 @@ export default function PulseOximeter(props) {
             oxiData.pulseRate !== 255 &&
             oxiData.perfussionIndex !== 0
         ) {
-
             await postOximeterData(oxiData);
+            // if (time === 15) {
+            //     await postOximeterData(oxiData);
+            //     setTime(0)
+            // } else {
+            //     timer()
+            // }
             // if (
             //     warningValues.oxigenSaturationWarning >=
             //     oxiData.oxigenSaturation ||
@@ -198,20 +206,20 @@ export default function PulseOximeter(props) {
     const disconnect = () => {
         if (device)
             setStopMonitoring(true);
-            if (device.isConnected) {
-                setDeviceData(null);
-                setDevice(null);
-                setStatus(null);
-                manager.cancelDeviceConnection(device.id).then((res) => {
-                    console.log("Manager cancel connection");
-                });
-                setDevice(null);
-                setDeviceData(null);
-            } else {
-                setDeviceData(null);
-                setDevice(null);
-                setStatus(null);
-            }
+        if (device.isConnected) {
+            setDeviceData(null);
+            setDevice(null);
+            setStatus(null);
+            manager.cancelDeviceConnection(device.id).then((res) => {
+                console.log("Manager cancel connection");
+            });
+            setDevice(null);
+            setDeviceData(null);
+        } else {
+            setDeviceData(null);
+            setDevice(null);
+            setStatus(null);
+        }
         showToast("Đã ngắt kết nối");
     };
 
