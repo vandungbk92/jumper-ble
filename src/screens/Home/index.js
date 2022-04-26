@@ -19,6 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {COMMON_APP, CONSTANTS} from '../../constants';
 import {
+    EKO_PAGE,
     LOGIN_PAGE, PULSEOXIMETER_PAGE, SETTINGS_PAGE, UPLOAD_PAGE,
 } from '../../constants/router';
 
@@ -153,10 +154,11 @@ class HomePage extends React.Component {
                         <View style={[tw.p1, tw.w1_3, {minHeight: 120}]}>
                             <TouchableOpacity
                                 style={[tw.flex1, tw.rounded, {backgroundColor: '#ffd556'}]}
+                                onPress={() => this.preventBeforeLogin(EKO_PAGE)}
                             >
                                 <HoiBacSiIcon style={tw.absolute}/>
                                 <RkText style={[tw.p4, tw.textLg]}>
-
+                                    Eko
                                 </RkText>
                             </TouchableOpacity>
                         </View>

@@ -28,7 +28,15 @@ import {
     CHANGE_PASSWORD_PAGE,
     THONGBAO_PAGE,
     THONGBAO_CANHAN,
-    THONGBAO_CONGDONG, SPO2_PAGE, UPLOAD_PAGE, VIDEO_PAGE, AUDIO_PAGE, PULSEOXIMETER_PAGE, HISTORY_PAGE, SETTINGS_PAGE,
+    THONGBAO_CONGDONG,
+    SPO2_PAGE,
+    UPLOAD_PAGE,
+    VIDEO_PAGE,
+    AUDIO_PAGE,
+    PULSEOXIMETER_PAGE,
+    HISTORY_PAGE,
+    SETTINGS_PAGE,
+    EKO_PAGE,
 } from '../constants/router';
 
 import {getStoreInstance} from '../epics-reducers/store';
@@ -69,6 +77,7 @@ import {KittenTheme} from "../../config/theme";
 import PulseOximeter from "../screens/PulseOximeter";
 import HistoryScreen from "../screens/PulseOximeter/components/HistoryScreen";
 import SettingsScreen from "../screens/Settings";
+import EkoDevice from "../screens/Eko";
 
 const DrawerNavigator = createDrawerNavigator(
     {
@@ -167,7 +176,9 @@ const AppNavigator = createStackNavigator(
             screen: PulseOximeter,
         },
         [HISTORY_PAGE]: HistoryScreen,
-        [SETTINGS_PAGE]: SettingsScreen
+        [SETTINGS_PAGE]: SettingsScreen,
+        [EKO_PAGE]: EkoDevice
+
     },
     {
         headerMode: 'screen',
