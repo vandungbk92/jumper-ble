@@ -36,7 +36,7 @@ import {
     PULSEOXIMETER_PAGE,
     HISTORY_PAGE,
     SETTINGS_PAGE,
-    EKO_PAGE,
+    EKO_PAGE, DETAIL_OXIMETER_PAGE,
 } from '../constants/router';
 
 import {getStoreInstance} from '../epics-reducers/store';
@@ -78,6 +78,7 @@ import PulseOximeter from "../screens/PulseOximeter";
 import HistoryScreen from "../screens/PulseOximeter/components/HistoryScreen";
 import SettingsScreen from "../screens/Settings";
 import EkoDevice from "../screens/Eko";
+import DetailScreen from "../screens/PulseOximeter/components/DetailScreen";
 
 const DrawerNavigator = createDrawerNavigator(
     {
@@ -176,9 +177,12 @@ const AppNavigator = createStackNavigator(
             screen: PulseOximeter,
         },
         [HISTORY_PAGE]: HistoryScreen,
-        [SETTINGS_PAGE]: SettingsScreen,
-        [EKO_PAGE]: EkoDevice
 
+        [SETTINGS_PAGE]: SettingsScreen,
+
+        [EKO_PAGE]: EkoDevice,
+
+        [DETAIL_OXIMETER_PAGE]: DetailScreen
     },
     {
         headerMode: 'screen',

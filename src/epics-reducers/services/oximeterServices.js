@@ -17,13 +17,12 @@ export function postOximeterData(data) {
     });
 }
 
-export function getOximeterData(page) {
-    console.log(page)
+export function getOximeterData() {
     return axios
-        .get(`${COMMON_APP.HOST_API}${API.PULSE_OXIMETER}?page=${page}`)
+        .get(`${COMMON_APP.HOST_API}${API.PULSE_OXIMETER}`)
         .then((res) => {
             if (res.data) {
-                return res.data.docs;
+                return res.data;
             } else {
                 return null;
             }
@@ -34,3 +33,14 @@ export function getOximeterData(page) {
         });
 }
 
+export function getHistory(date){
+    return axios.get(`${COMMON_APP.HOST_API}${API.PULSE_OXIMETER}/1?date=${date}`).then(res => {
+        if(res.data)
+            return res.data
+        else
+            return null
+    }).catch(err => {
+        console.log(err)
+        return null
+    })
+}

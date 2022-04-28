@@ -65,7 +65,7 @@ export default function PulseOximeter(props) {
                 setDeviceData(null);
                 return;
             }
-            
+
             if (device.id === id) {
                 manager.stopDeviceScan();
                 connectDevice(device);

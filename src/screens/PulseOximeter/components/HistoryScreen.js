@@ -7,37 +7,32 @@ import {KittenTheme} from "../../../../config/theme";
 import {RkText} from "react-native-ui-kitten";
 import I18n from "../../../utilities/I18n";
 import React, {useEffect, useState} from "react";
-import {getOximeterData} from "../../../epics-reducers/services/oximeterServices";
+import {getHistory, getOximeterData} from "../../../epics-reducers/services/oximeterServices";
 import CircularProgress from "react-native-circular-progress-indicator";
 import moment from "moment";
+import {DETAIL_OXIMETER_PAGE} from "../../../constants/router";
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get("window")
 
 export default function HistoryScreen(props) {
-    const [loading, setLoading] = useState(true);
     const [data, setData] = useState([]);
-    const [page, setPage] = useState(0);
-
     useEffect(async () => {
-        await onLoadMore(page);
+        await onLoadMore();
     }, []);
 
     const onLoadMore = async () => {
-        setLoading(true);
-        let nextPage = page + 1;
-        const newData = await getOximeterData(1);
-        if (newData.length > 0) {
-            setData([...data, ...newData]);
-            setPage(nextPage);
-            setLoading(false);
-        }
+        const newData = await getOximeterData();
+        if (newData) setData(newData.data)
     };
 
     const renderItems = ({item, index}) => {
-        return (<View
+        return (<TouchableOpacity
             style={{
                 flex: 1, margin: 4, padding: 8, flexDirection: 'row'
             }}
+            onPress={() => props.navigation.navigate(DETAIL_OXIMETER_PAGE, {
+                date: item.date
+            })}
         >
             <View
                 style={{
@@ -45,7 +40,7 @@ export default function HistoryScreen(props) {
                 }}
             >
                 <CircularProgress
-                    value={item.oxigenSaturation}
+                    value={item.spo2}
                     progressValueColor={"#92BA92"}
                     maxValue={100}
                     valueSuffix={"%"}
@@ -58,12 +53,10 @@ export default function HistoryScreen(props) {
             <View style={{
                 flex: 2, justifyContent: "center", marginHorizontal: 8
             }}>
-                <RkText style={{color: 'white'}}>Nhịp tim: {item.pulseRate}</RkText>
-                <RkText style={{color: 'white'}}>Chỉ số PI: {item.perfussionIndex}</RkText>
-                <RkText style={{color: 'white'}}>Ngày: {moment(item.created_at).format("dd DD MMMM YYYY")}</RkText>
+                <RkText style={{color: 'white'}}>{moment(item.date).format('dd DD MMMM YYYY')}</RkText>
 
             </View>
-        </View>);
+        </TouchableOpacity>);
     };
 
     return (<ImageBackground source={require('../../../assets/his_bg.jpg')}
@@ -71,8 +64,6 @@ export default function HistoryScreen(props) {
         <FlatList
             data={data}
             renderItem={renderItems}
-            // onEndReached={onLoadMore}
-            // onEndReachedThreshold={0.1}
             keyExtractor={item => item._id}
         />
     </ImageBackground>);
