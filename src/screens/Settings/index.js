@@ -11,33 +11,44 @@ import GradientButton from "../base/gradientButton";
 import AsyncStorageLib from "@react-native-async-storage/async-storage";
 import {CONSTANTS} from "../../constants/constants";
 import {showToast} from "../../epics-reducers/services/common";
+import DatePicker from "react-native-date-picker";
 
 export default function SettingsScreen(props) {
-    const [pulseRateWarning, setPulseRateWarning] = useState(50);
+    const [pulseRateWarning, setPulseRateWarning] = useState(0);
     const [perfussionIndexWarning, setPerfussionIndexWarning] = useState(0);
-    const [oxigenSaturation, setOxigenSaturation] = useState(50);
+    const [oxigenSaturation, setOxigenSaturation] = useState(0);
+
+    const [openStart, setOpenStart] = useState(false)
+    const [openEnd, setOpenEnd] = useState(false)
+    const [startTime, setStartTime] = useState(new Date())
+    const [endTime, setEndTime] = useState(new Date())
+
+    const showStart = () => {
+        setOpenStart(true)
+    }
+
+    const showEnd = () => {
+        setOpenEnd(true)
+    }
 
     const onSaveSettings = () => {
-        AsyncStorageLib.setItem(
-            CONSTANTS.WARNING_SETTINGS,
-            JSON.stringify({
-                pulseRateWarning: pulseRateWarning,
-                perfussionIndexWarning: perfussionIndexWarning,
-                oxigenSaturationWarning: oxigenSaturation,
-            })
-        );
+        AsyncStorageLib.setItem(CONSTANTS.WARNING_SETTINGS, JSON.stringify({
+            pulseRateWarning: pulseRateWarning,
+            perfussionIndexWarning: perfussionIndexWarning,
+            oxigenSaturationWarning: oxigenSaturation,
+            startRecording: startTime.toLocaleString(),
+            endRecording: endTime.toLocaleString()
+        }));
         showToast("Lưu thành công!");
         props.navigation.goBack(null);
     };
 
-    return (
-        <>
-            <View style={tw.p4}>
+    return (<>
+            <View style={[tw.p4, tw.flex1, {flexDirection: 'column'}]}>
                 <View>
                     <View
                         style={{
-                            justifyContent: "space-between",
-                            flexDirection: "row",
+                            justifyContent: "space-between", flexDirection: "row",
                         }}
                     >
                         <RkText>Nhịp tim</RkText>
@@ -56,8 +67,7 @@ export default function SettingsScreen(props) {
                 <View>
                     <View
                         style={{
-                            justifyContent: "space-between",
-                            flexDirection: "row",
+                            justifyContent: "space-between", flexDirection: "row",
                         }}
                     >
                         <RkText>SpO2</RkText>
@@ -76,8 +86,7 @@ export default function SettingsScreen(props) {
                 <View>
                     <View
                         style={{
-                            justifyContent: "space-between",
-                            flexDirection: "row",
+                            justifyContent: "space-between", flexDirection: "row",
                         }}
                     >
                         <RkText>Chỉ số PI</RkText>
@@ -92,26 +101,71 @@ export default function SettingsScreen(props) {
                         minimumValue={0}
                         maximumValue={20}
                         step={0.1}
-                        onValueChange={(value) =>
-                            setPerfussionIndexWarning(value)
-                        }
+                        onValueChange={(value) => setPerfussionIndexWarning(value)}
                         minimumTrackTintColor="#FFFFFF"
                         maximumTrackTintColor="#000000"
                     />
                 </View>
+                <View style={{marginVertical: 8, flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <TouchableOpacity onPress={showStart}>
+                        <RkText>Thời gian bắt đầu đo</RkText>
+                        <DatePicker
+                            modal
+                            open={openStart}
+                            date={startTime}
+                            onConfirm={(date) => {
+                                setOpenStart(false)
+                                setStartTime(date)
+                            }}
+                            onCancel={() => {
+                                setOpenStart(false)
+                            }}
+                            mode={'time'}
+                            title={'Thời gian bắt đầu đo'}
+                            confirmText={'Xác nhận'}
+                            cancelText={'Huỷ'}
+                        />
+                    </TouchableOpacity>
+                    <View>
+                        <RkText>{startTime.toLocaleTimeString().substring(0, 5)}</RkText>
+                    </View>
+                </View>
+                <View style={{marginVertical: 8, flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <TouchableOpacity onPress={showEnd}>
+                        <RkText>Thời gian kết thúc đo</RkText>
+                        <DatePicker
+                            modal
+                            open={openEnd}
+                            date={endTime}
+                            onConfirm={(date) => {
+                                setOpenEnd(false)
+                                setEndTime(date)
+                            }}
+                            onCancel={() => {
+                                setOpenEnd(false)
+                            }}
+                            mode={'time'}
+                            title={'Thời gian kết thúc đo'}
+                            confirmText={'Xác nhận'}
+                            cancelText={'Huỷ'}
+                        />
+                    </TouchableOpacity>
+                    <View>
+                        <RkText>{endTime.toLocaleTimeString().substring(0, 5)}</RkText>
+                    </View>
+                </View>
+
                 <GradientButton
                     onPress={onSaveSettings}
                     text={I18n.t("Lưu")}
-                    style={styleContainer.buttonGradient}
+                    style={[styleContainer.buttonGradient]}
                 />
             </View>
-        </>
-    );
+        </>);
 }
 
 SettingsScreen.navigationOptions = ({navigation}) => ({
-    headerLeft: () => (
-        <TouchableOpacity
+    headerLeft: () => (<TouchableOpacity
             style={styleContainer.headerButton}
             onPress={() => navigation.goBack()}
         >
@@ -120,9 +174,5 @@ SettingsScreen.navigationOptions = ({navigation}) => ({
                 size={20}
                 color={KittenTheme.colors.appColor}
             />
-        </TouchableOpacity>
-    ),
-    headerTitle: () => (
-        <RkText rkType="header4">{I18n.t("Cài đặt cảnh báo")}</RkText>
-    ),
+        </TouchableOpacity>), headerTitle: () => (<RkText rkType="header4">{I18n.t("Cài đặt cảnh báo")}</RkText>),
 });

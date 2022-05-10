@@ -3,27 +3,28 @@ import {
     View, Text, TouchableOpacity, Dimensions, ImageBackground, ScrollView, StyleSheet
 } from "react-native";
 import {BleManager} from "react-native-ble-plx";
-import GradientButton from "../base/gradientButton";
 import {Buffer} from "buffer";
-import {tw} from "react-native-tailwindcss";
 import I18n from "../../utilities/I18n";
 import {styleContainer} from "../../stylesContainer";
-import {postOximeterData} from "../../epics-reducers/services/oximeterServices";
-import {showToast} from "../../epics-reducers/services/common";
+import {postFileData, postOximeterData} from "../../epics-reducers/services/oximeterServices";
 import {Ionicons, AntDesign, FontAwesome5} from "@expo/vector-icons";
 import {KittenTheme} from "../../../config/theme";
 import {RkText} from "react-native-ui-kitten";
-import {Audio} from "expo-av";
 import {HISTORY_PAGE} from "../../constants/router";
-import AsyncStorageLib from "@react-native-async-storage/async-storage";
-import {CONSTANTS} from "../../constants";
 import CircularProgress from "react-native-circular-progress-indicator";
 import Slider from "react-native-slider";
 import moment from "moment";
+import GradientButton from "../base/gradientButton";
+import AsyncStorageLib from "@react-native-async-storage/async-storage";
+import {CONSTANTS} from "../../constants";
+import {showToast} from "../../epics-reducers/services/common";
+
+const RNFS = require('react-native-fs');
 
 const manager = new BleManager();
 const {width: screenWidth, height: screenHeight} = Dimensions.get("screen");
 
+const filePath = RNFS.DocumentDirectoryPath + '/test.txt';
 export default function PulseOximeter(props) {
     const [device, setDevice] = useState(null);
     const [deviceData, setDeviceData] = useState(null);
@@ -33,7 +34,15 @@ export default function PulseOximeter(props) {
         props.navigation.setParams({
             onBackAction: onBackAction, scanAndConnect: scanAndConnect,
         });
+        loadValues()
     }, []);
+
+    const loadValues = async () => {
+        const values = await AsyncStorageLib.getItem(
+            CONSTANTS.WARNING_SETTINGS
+        );
+        console.log(JSON.parse(values));
+    };
 
     useEffect(() => {
         manager.onStateChange((state) => {
@@ -58,7 +67,6 @@ export default function PulseOximeter(props) {
             return;
         }
         const id = "40:2E:71:47:0A:1F";
-        // const id = "88:6B:0F:77:0A:11";
         setDeviceData(null);
         manager.startDeviceScan(null, null, (error, device) => {
             if (error) {
@@ -139,6 +147,10 @@ export default function PulseOximeter(props) {
             setDeviceData(data);
 
             // await postOximeterData(oxiData);
+            await writeFile({
+                time: moment().format(),
+                data: oxiData
+            })
         }
     };
 
@@ -163,6 +175,47 @@ export default function PulseOximeter(props) {
             console.log(err.message);
         }
     };
+
+    const writeFile = async (data) => {
+        try {
+            return RNFS.appendFile(filePath, JSON.stringify(data) + '\n', 'utf8')
+                .then((success) => {
+                    return true
+                })
+                .catch((err) => {
+                    return false
+                });
+        } catch (e) {
+            return false
+        }
+    }
+
+    const readFile = () => {
+        RNFS.readFile(filePath, 'utf8')
+            .then((result) => {
+                console.log(result);
+            })
+            .catch((err) => {
+                console.log(err.message, err.code);
+            });
+    }
+
+    const deleteFile = async () => {
+        if (await RNFS.exists(filePath))
+            RNFS.unlink(filePath).then(() => {
+                console.log('FILE DELETED');
+            })
+                .catch((err) => {
+                    console.log(err.message);
+                });
+        else
+            showToast("Dữ liệu không tồn tại!")
+    }
+
+    const uploadToServer = async () => {
+        const data = await postFileData(filePath, moment().format().substring(0, 10))
+        console.log(data)
+    }
 
     return (<View style={{flex: 1}}>
         <ImageBackground
@@ -367,6 +420,9 @@ export default function PulseOximeter(props) {
                     </View>
                 </View>
             </View>
+            <GradientButton style={{margin: 4}} text={"Đọc"} onPress={() => readFile()}/>
+            <GradientButton style={{margin: 4}} text={"Gửi"} onPress={() => uploadToServer()}/>
+            <GradientButton style={{margin: 4}} text={"Xoá"} onPress={() => deleteFile()}/>
         </ScrollView>
     </View>);
 }
