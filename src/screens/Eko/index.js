@@ -39,7 +39,7 @@ export default function EkoDevice(props) {
     }, [manager]);
 
     const onBackAction = () => {
-        onDestroyBLE();
+        // onDestroyBLE();
         props.navigation.goBack(null);
     };
 
@@ -52,7 +52,6 @@ export default function EkoDevice(props) {
         setDeviceData(null);
         manager.startDeviceScan(null, null, (error, device) => {
             if (error) {
-                console.log(error.message)
                 return;
             }
             if (device.id === id) {

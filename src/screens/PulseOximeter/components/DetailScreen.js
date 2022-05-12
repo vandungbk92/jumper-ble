@@ -1,20 +1,21 @@
 import {
-    View, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Dimensions, ImageBackground, Text, ScrollView,
+    View,
+    TouchableOpacity,
+    Dimensions,
+    Text,
+    ScrollView,
 } from "react-native";
-import {styleContainer} from "../../../stylesContainer";
-import {AntDesign, FontAwesome5, Ionicons} from "@expo/vector-icons";
-import {KittenTheme} from "../../../../config/theme";
-import {RkText} from "react-native-ui-kitten";
+import { styleContainer } from "../../../stylesContainer";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { KittenTheme } from "../../../../config/theme";
+import { RkText } from "react-native-ui-kitten";
 import I18n from "../../../utilities/I18n";
-import React, {useEffect, useState} from "react";
-import {
-    getHistory, getOximeterData,
-} from "../../../epics-reducers/services/oximeterServices";
-import CircularProgress from "react-native-circular-progress-indicator";
+import React, { useEffect, useState } from "react";
+import { getHistory } from "../../../epics-reducers/services/oximeterServices";
 import moment from "moment";
-import Slider from "react-native-slider";
+import { LineChart } from "react-native-chart-kit";
 
-const {width: screenWidth, height: screenHeight} = Dimensions.get("window");
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 export default function DetailScreen(props) {
     const [data, setData] = useState();
@@ -23,254 +24,351 @@ export default function DetailScreen(props) {
     }, []);
 
     const onLoadMore = async () => {
-        const {date} = props.navigation.state.params;
+        const { date } = props.navigation.state.params;
         const data = await getHistory(date.substring(0, 10));
-        if (data) setData(data);
+        if (data) {
+            setData(data);
+        }
     };
 
-    return (<View style={{flex: 1}}>
-            <ImageBackground
-                source={require("../../../assets/bg.jpg")}
-                style={{
-                    width: screenWidth, height: screenHeight * 0.25, flex: 1,
-                }}
-                resizeMode={"cover"}
-            >
-                <View
-                    style={{
-                        justifyContent: "center", alignItems: "center", marginTop: screenWidth * 0.1,
-                    }}
-                >
-                    <View
-                        style={{
-                            alignItems: "center", justifyContent: "center", marginBottom: 10,
-                        }}
-                    >
-                        <Text style={{color: "white"}}>Giấc ngủ</Text>
-                        <View
-                            style={{
-                                flexDirection: "row", alignItems: "center",
-                            }}
-                        >
-                            <Text style={{color: "white", fontSize: 18}}>
-                                {moment(props.navigation.state.params.date).format("dd DD MMMM YYYY")}
-                            </Text>
-                        </View>
-                    </View>
-                    <View
-                        style={{
-                            width: screenWidth * 0.5,
-                            height: screenWidth * 0.5,
-                            backgroundColor: "white",
-                            borderRadius: 100,
-                            alignSelf: "center",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        <CircularProgress
-                            value={data ? data.avgSpO2 : 0}
-                            progressValueColor={"#92BA92"}
-                            maxValue={100}
-                            valueSuffix={"%"}
-                            inActiveStrokeColor={"#2ecc71"}
-                            inActiveStrokeOpacity={0.2}
-                            radius={screenWidth * 0.25 - 5}
-                        />
-                    </View>
-                </View>
-            </ImageBackground>
-            <ScrollView style={{flex: 1}}>
-                <Text
-                    style={{
-                        alignSelf: "center", fontSize: 20, color: "#069A8E",
-                    }}
-                >
-                    Chỉ số Oxi trong máu ổn định
-                </Text>
-                <Text style={{alignSelf: "center", color: "#069A8E"}}>
-                    Khoẻ mạnh
-                </Text>
-                <View
-                    style={{
-                        flex: 1, marginTop: 4,
-                    }}
-                >
-                    <View style={{flex: 1}}>
-                        <View>
-                            <View style={{paddingHorizontal: 16, marginVertical: 4}}>
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                    }}
+    function convertData(array) {
+        const { data } = array;
+        let pulse = data.map((item) => parseInt(item.pulseRate));
+        let spo2 = data.map((item) => parseInt(item.oxigenSaturation));
+        return {
+            pulse: pulse,
+            spo2: spo2,
+        };
+    }
+
+    return (
+        <View style={{ flex: 1 }}>
+            <ScrollView style={{ flex: 1 }}>
+                {data &&
+                    data.map((item, index) => {
+                        const { spo2_data, history_data } = item;
+                        const objectData = convertData(spo2_data);
+                        let maxPulse =
+                            parseInt(Math.max(...objectData.pulse)) + 30;
+                        let minPulse =
+                            parseInt(Math.min(...objectData.pulse)) - 30;
+                        return (
+                            <View
+                                key={index}
+                                style={{
+                                    flex: 1,
+                                    marginTop: 4,
+                                    backgroundColor: "white",
+                                }}
+                            >
+                                <RkText
+                                    style={{ alignSelf: "center", margin: 4 }}
                                 >
+                                    Biểu đồ nhịp tim
+                                </RkText>
+                                <ScrollView horizontal={true}>
+                                    <LineChart
+                                        data={{
+                                            datasets: [
+                                                {
+                                                    data: objectData.pulse,
+                                                },
+                                                {
+                                                    data: [
+                                                        minPulse > 0
+                                                            ? minPulse
+                                                            : 0,
+                                                        maxPulse,
+                                                    ],
+                                                    color: () => "transparent",
+                                                    strokeWidth: 0,
+                                                    withDots: false,
+                                                },
+                                            ],
+                                        }}
+                                        width={
+                                            objectData.pulse.length >
+                                            screenWidth
+                                                ? objectData.pulse.length
+                                                : screenWidth
+                                        }
+                                        height={screenHeight / 3}
+                                        withHorizontalLabels={true}
+                                        chartConfig={{
+                                            backgroundColor: "#fff",
+                                            backgroundGradientFrom: "#fff",
+                                            backgroundGradientTo: "#fff",
+                                            fillShadowGradientFrom: "#fff",
+                                            fillShadowGradientTo: "#fff",
+                                            decimalPlaces: 2,
+                                            color: (opacity = 1) =>
+                                                `rgba(0, 0, 0, ${opacity})`,
+                                            labelColor: () => `rgba(0,0,0,1)`,
+                                            useShadowColorFromDataset: false,
+                                            strokeWidth: 2,
+                                            decimalPlaces: 0,
+                                        }}
+                                        withDots={false}
+                                        withVerticalLines={false}
+                                        style={{
+                                            paddingRight: 40,
+                                        }}
+                                    />
+                                </ScrollView>
+                                <RkText
+                                    style={{ alignSelf: "center", margin: 4 }}
+                                >
+                                    Biểu đồ SpO2
+                                </RkText>
+                                <ScrollView horizontal={true}>
+                                    <LineChart
+                                        data={{
+                                            datasets: [
+                                                {
+                                                    data: objectData.spo2,
+                                                },
+                                                {
+                                                    data: [0, 100],
+                                                    color: () => "transparent",
+                                                    strokeWidth: 0,
+                                                    withDots: false,
+                                                },
+                                            ],
+                                        }}
+                                        width={
+                                            objectData.spo2.length > screenWidth
+                                                ? objectData.spo2.length
+                                                : screenWidth
+                                        }
+                                        height={screenHeight / 3}
+                                        withHorizontalLabels={true}
+                                        chartConfig={{
+                                            backgroundColor: "#fff",
+                                            backgroundGradientFrom: "#fff",
+                                            backgroundGradientTo: "#fff",
+                                            fillShadowGradientFrom: "#fff",
+                                            fillShadowGradientTo: "#fff",
+                                            decimalPlaces: 2,
+                                            color: (opacity = 1) =>
+                                                `rgba(0, 0, 0, ${opacity})`,
+                                            labelColor: () => `rgba(0,0,0,1)`,
+                                            useShadowColorFromDataset: false,
+                                            strokeWidth: 2,
+                                            decimalPlaces: 0,
+                                        }}
+                                        withDots={false}
+                                        withVerticalLines={false}
+                                        style={{
+                                            paddingRight: 40,
+                                        }}
+                                    />
+                                </ScrollView>
+                                <View style={{ flex: 1 }}>
                                     <View
                                         style={{
-                                            flex: 4, flexDirection: "row", alignItems: "center",
+                                            paddingHorizontal: 16,
                                         }}
                                     >
-                                        <FontAwesome5
-                                            name="heartbeat"
-                                            size={24}
-                                            color="#1DB9C3"
-                                        />
-                                        <Text
+                                        <RkText
                                             style={{
-                                                marginHorizontal: 4, color: "#1DB9C3",
+                                                marginVertical: 4,
                                             }}
                                         >
-                                            Nhịp tim
-                                        </Text>
-                                    </View>
-                                    <View
-                                        style={{
-                                            flex: 1,
-                                        }}
-                                    >
-                                        {data && (<Text
-                                                style={{
-                                                    alignSelf: "flex-end",
-                                                }}
-                                            >
-                                                {data.minPulseRate} /{" "}
-                                                {data.maxPulseRate}
-                                            </Text>)}
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                        <View>
-                            <View style={{paddingHorizontal: 16, marginVertical: 4}}>
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            flex: 4, flexDirection: "row", alignItems: "center",
-                                        }}
-                                    >
-                                        <Ionicons
-                                            name="leaf-outline"
-                                            size={24}
-                                            color="#7027A0"
-                                        />
-                                        <Text
+                                            Thời gian đo:{" "}
+                                            {moment(
+                                                history_data.created_at
+                                            ).format("HH:mm:ss DD-MM-YYYY")}
+                                        </RkText>
+                                        <RkText
                                             style={{
-                                                marginHorizontal: 4, color: "#7027A0",
+                                                marginVertical: 4,
                                             }}
                                         >
-                                            Chỉ số tưới máu
-                                        </Text>
+                                            Giá trị SpO2 trung bình:{" "}
+                                            {history_data.avgSpO2}
+                                        </RkText>
                                     </View>
-                                    <View
-                                        style={{
-                                            flex: 1, alignSelf: "flex-end",
-                                        }}
-                                    >
-                                        {data && (<Text
-                                                style={{
-                                                    alignSelf: "flex-end",
-                                                }}
-                                            >
-                                                {data.minPI} / {data.maxPI}
-                                            </Text>)}
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                        <View>
-                            <View style={{paddingHorizontal: 16, marginVertical: 4}}>
-                                <View
-                                    style={{
-                                        flexDirection: "row",
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            flex: 3, flexDirection: "row", alignItems: "center",
-                                        }}
-                                    >
-                                        <Ionicons
-                                            name="timer-outline"
-                                            size={24}
-                                            color="#FEB139"
-                                        />
-                                        <Text
+                                    <View>
+                                        <View
                                             style={{
-                                                marginHorizontal: 4, color: "#FEB139",
+                                                paddingHorizontal: 16,
+                                                marginVertical: 4,
                                             }}
                                         >
-                                            Tổng thời gian dưới ngưỡng
-                                        </Text>
-                                    </View>
-                                    <View
-                                        style={{
-                                            flex: 1, alignSelf: "flex-end",
-                                        }}
-                                    >
-                                        {data && (<Text
+                                            <View
                                                 style={{
-                                                    alignSelf: "flex-end",
+                                                    flexDirection: "row",
                                                 }}
                                             >
-                                                {parseInt(data.totalTime / 1000)}{" "}
-                                                (giây)
-                                            </Text>)}
-                                    </View>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: "row", marginVertical: 4
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            flex: 1, alignSelf: "flex-end",
-                                        }}
-                                    >
-                                        {data !== undefined ? (data.eachTime.map((item, index) => {
-                                                return (<View
+                                                <View
+                                                    style={{
+                                                        flex: 4,
+                                                        flexDirection: "row",
+                                                        alignItems: "center",
+                                                    }}
+                                                >
+                                                    <FontAwesome5
+                                                        name="heartbeat"
+                                                        size={24}
+                                                        color="#1DB9C3"
+                                                    />
+                                                    <Text
                                                         style={{
-                                                            flexDirection: "row", marginVertical: 4
+                                                            marginHorizontal: 4,
+                                                            color: "#1DB9C3",
                                                         }}
                                                     >
-                                                        <View
-                                                            style={{flex: 3}}
-                                                        >
-                                                            <RkText>
-                                                                Lần {index + 1}:
-                                                            </RkText>
-                                                        </View>
-                                                        <View
+                                                        Nhịp tim
+                                                    </Text>
+                                                </View>
+                                                <View
+                                                    style={{
+                                                        flex: 1,
+                                                    }}
+                                                >
+                                                    {data && (
+                                                        <Text
                                                             style={{
-                                                                alignSelf: "flex-end", flex: 2,
+                                                                alignSelf:
+                                                                    "flex-end",
                                                             }}
                                                         >
-                                                            <RkText
-                                                                style={{
-                                                                    alignSelf: "flex-end",
-                                                                }}
-                                                            >
-                                                                {parseFloat(item.time / 1000).toFixed(2)}{" "}
-                                                                (giây)
-                                                            </RkText>
-                                                        </View>
-                                                    </View>);
-                                            })) : (<View/>)}
+                                                            {
+                                                                history_data.minPulseRate
+                                                            }{" "}
+                                                            /{" "}
+                                                            {
+                                                                history_data.maxPulseRate
+                                                            }
+                                                        </Text>
+                                                    )}
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </View>
+                                    <View>
+                                        <View
+                                            style={{
+                                                paddingHorizontal: 16,
+                                                marginVertical: 4,
+                                            }}
+                                        >
+                                            <View
+                                                style={{
+                                                    flexDirection: "row",
+                                                }}
+                                            >
+                                                <View
+                                                    style={{
+                                                        flex: 4,
+                                                        flexDirection: "row",
+                                                        alignItems: "center",
+                                                    }}
+                                                >
+                                                    <Ionicons
+                                                        name="leaf-outline"
+                                                        size={24}
+                                                        color="#7027A0"
+                                                    />
+                                                    <Text
+                                                        style={{
+                                                            marginHorizontal: 4,
+                                                            color: "#7027A0",
+                                                        }}
+                                                    >
+                                                        Chỉ số tưới máu
+                                                    </Text>
+                                                </View>
+                                                <View
+                                                    style={{
+                                                        flex: 1,
+                                                        alignSelf: "flex-end",
+                                                    }}
+                                                >
+                                                    {data && (
+                                                        <Text
+                                                            style={{
+                                                                alignSelf:
+                                                                    "flex-end",
+                                                            }}
+                                                        >
+                                                            {history_data.minPI}{" "}
+                                                            /{" "}
+                                                            {history_data.maxPI}
+                                                        </Text>
+                                                    )}
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </View>
+                                    <View>
+                                        <View
+                                            style={{
+                                                paddingHorizontal: 16,
+                                                marginVertical: 4,
+                                            }}
+                                        >
+                                            <View
+                                                style={{
+                                                    flexDirection: "row",
+                                                }}
+                                            >
+                                                <View
+                                                    style={{
+                                                        flex: 3,
+                                                        flexDirection: "row",
+                                                        alignItems: "center",
+                                                    }}
+                                                >
+                                                    <Ionicons
+                                                        name="timer-outline"
+                                                        size={24}
+                                                        color="#FEB139"
+                                                    />
+                                                    <Text
+                                                        style={{
+                                                            marginHorizontal: 4,
+                                                            color: "#FEB139",
+                                                        }}
+                                                    >
+                                                        Tổng thời gian dưới
+                                                        ngưỡng
+                                                    </Text>
+                                                </View>
+                                                <View
+                                                    style={{
+                                                        flex: 1,
+                                                        alignSelf: "flex-end",
+                                                    }}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            alignSelf:
+                                                                "flex-end",
+                                                        }}
+                                                    >
+                                                        {parseInt(
+                                                            history_data.totalTime /
+                                                                1000
+                                                        )}{" "}
+                                                        (giây)
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </View>
                                     </View>
                                 </View>
                             </View>
-                        </View>
-                    </View>
-                </View>
+                        );
+                    })}
             </ScrollView>
-        </View>);
+        </View>
+    );
 }
 
-DetailScreen.navigationOptions = ({navigation}) => ({
-    headerLeft: () => (<TouchableOpacity
+DetailScreen.navigationOptions = ({ navigation }) => ({
+    headerLeft: () => (
+        <TouchableOpacity
             style={styleContainer.headerButton}
             onPress={() => navigation.goBack(null)}
         >
@@ -279,5 +377,7 @@ DetailScreen.navigationOptions = ({navigation}) => ({
                 size={20}
                 color={KittenTheme.colors.appColor}
             />
-        </TouchableOpacity>), headerTitle: () => <RkText rkType="header4">{I18n.t("Chi tiết")}</RkText>,
+        </TouchableOpacity>
+    ),
+    headerTitle: () => <RkText rkType="header4">{I18n.t("Chi tiết")}</RkText>,
 });

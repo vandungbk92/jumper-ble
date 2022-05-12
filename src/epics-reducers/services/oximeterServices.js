@@ -13,7 +13,6 @@ export function postOximeterData(data) {
       }
     })
     .catch((error) => {
-      console.log(error)
       return null;
     });
 }
@@ -29,20 +28,17 @@ export function getOximeterData() {
             }
         })
         .catch((error) => {
-            console.log(error)
             return null;
         });
 }
 
 export function getHistory(date){
     return axios.get(`${COMMON_APP.HOST_API}${API.PULSE_OXIMETER}/1?date=${date}`).then(res => {
-        console.log(res.data)
         if(res.data)
             return res.data.data
         else
             return null
     }).catch(err => {
-        console.log(err)
         return null
     })
 }
@@ -55,14 +51,13 @@ export function postFileData(uri, date){
     const formData = new FormData();
     formData.append("oximeter", {
         uri: `file://${uri}`,
-        name: `test.txt`,
+        name: `data.txt`,
         type: 'text/plain',
     });
     return axios.post(path, formData, config).then(response => {
         const data = response.data;
         return data
     }).catch(error => {
-        console.log(error)
         return null
     });
 }
