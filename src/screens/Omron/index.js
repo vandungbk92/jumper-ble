@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Dimensions } from "react-native";
 import { BleManager } from "react-native-ble-plx";
+import { Buffer } from "buffer";
 import I18n from "../../utilities/I18n";
 import { styleContainer } from "../../stylesContainer";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { KittenTheme } from "../../../config/theme";
 import { RkText } from "react-native-ui-kitten";
 import * as Location from "expo-location";
 
+const RNFS = require("react-native-fs");
+
 const manager = new BleManager();
+const { width: screenWidth, height: screenHeight } = Dimensions.get("screen");
 
-export default function EkoDevice(props) {
+const filePath = RNFS.DocumentDirectoryPath + "/data.txt";
+
+export default function OmronScreen(props) {
     const [device, setDevice] = useState(null);
-    const [status, setStatus] = useState(null);
-    const [deviceData, setDeviceData] = useState([]);
-    const [deviceId, setDeviceId] = useState("88:6B:0F:77:0A:11");
-
+    const [deviceData, setDeviceData] = useState(null);
     useEffect(() => {
         props.navigation.setParams({
             onBackAction: onBackAction,
@@ -35,8 +38,8 @@ export default function EkoDevice(props) {
         });
     }, [manager]);
 
-    const onBackAction = () => {
-        onDestroyBLE();
+    const onBackAction = async () => {
+        await onDestroyBLE();
         props.navigation.goBack(null);
     };
 
@@ -48,18 +51,24 @@ export default function EkoDevice(props) {
     };
 
     const scanAndConnect = () => {
-        if (device || deviceData.length > 0) {
+        if (device || deviceData) {
+            setDeviceData(null);
             return;
         }
-
-        setStatus("Đang quét...");
+        const id = "28:FF:B2:EB:5D:EC";
         setDeviceData(null);
         manager.startDeviceScan(null, null, (error, device) => {
             if (error) {
+                console.log(error);
+                setDeviceData(null);
                 return;
             }
-            if (device.id === deviceId) {
+            console.log(device.id);
+            if (device.id === id) {
                 manager.stopDeviceScan();
+                manager.onDeviceDisconnected(id, async (err, device) => {
+                    console.log("Destroyed");
+                });
                 connectDevice(device);
             }
         });
@@ -68,14 +77,13 @@ export default function EkoDevice(props) {
     const connectDevice = (device) => {
         device
             .connect()
-            .then((device) => {
-                setStatus(`Đã kết nối tới thiết bị: ${device.name}`);
-                setDeviceId(device.id);
+            .then(async (device) => {
+                console.log("success");
                 setDevice(device);
-                readData(device);
+                await readData(device);
             })
             .catch((error) => {
-                console.log(error.message());
+                return;
             });
     };
 
@@ -99,24 +107,19 @@ export default function EkoDevice(props) {
                 );
 
                 characteristics.map((x) => {
-                    console.log(x.isNotifiable);
-                    if (x.isNotifiable) {
-                        x.monitor(async (err, listener) => {
-                            if (err) {
-                                console.log(err.message);
-                            }
-                            if (listener) {
-                                if (listener.hasOwnProperty("value")) {
-                                    const hexString = Buffer.from(
-                                        listener.value,
-                                        "base64"
-                                    ).toString("hex");
-                                    const data = convertHexToDecimal(hexString);
-                                    console.log(data);
-                                    // process(data)
-                                }
-                            }
-                        });
+                    if (x.isReadable) {
+                        x.read()
+                            .then((res) => {
+                                const hexString = Buffer.from(
+                                    res.value,
+                                    "base64"
+                                ).toString("hex");
+                                const data = convertHexToDecimal(hexString);
+                                process(data);
+                            })
+                            .catch((err) => {
+                                console.log("read err", err);
+                            });
                     } else {
                         console.log("Not monitor characteristic");
                     }
@@ -126,41 +129,24 @@ export default function EkoDevice(props) {
     };
 
     const process = async (data) => {
-        deviceData.concat(data);
+        console.log(data);
     };
 
     const onDestroyBLE = async () => {
         try {
-            await device.cancelConnection();
-            await manager.cancelDeviceConnection(deviceId).then((res) => {
-                console.log("Manager cancel connection");
-            });
-            setStatus(null);
+            await manager.cancelDeviceConnection("28:FF:B2:EB:5D:EC");
             setDevice(null);
             setDeviceData(null);
             await manager.stopDeviceScan();
         } catch (err) {
-            console.log("err ", err.message);
+            console.log("destroy error", err.message);
         }
     };
 
-    return (
-        <View style={{ flex: 1 }}>
-            <View
-                style={{
-                    flex: 1,
-                    padding: 24,
-                }}
-            >
-                <Text style={{ marginVertical: 4, alignSelf: "center" }}>
-                    {status}
-                </Text>
-            </View>
-        </View>
-    );
+    return <View></View>;
 }
 
-EkoDevice.navigationOptions = ({ navigation }) => ({
+OmronScreen.navigationOptions = ({ navigation }) => ({
     headerLeft: () => (
         <TouchableOpacity
             style={styleContainer.headerButton}
@@ -173,7 +159,7 @@ EkoDevice.navigationOptions = ({ navigation }) => ({
             />
         </TouchableOpacity>
     ),
-    headerTitle: () => <RkText rkType="header4">{I18n.t("Eko")}</RkText>,
+    headerTitle: () => <RkText rkType="header4">{I18n.t("Omron")}</RkText>,
     headerRight: () => (
         <TouchableOpacity
             style={styleContainer.headerButton}

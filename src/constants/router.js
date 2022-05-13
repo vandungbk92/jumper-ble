@@ -78,3 +78,5 @@ export const SETTINGS_PAGE = 'SETTINGS_PAGE'
 export const EKO_PAGE = 'EKO_PAGE'
 
 export const DETAIL_OXIMETER_PAGE = 'DETAIL_OXIMETER_PAGE'
+
+export const OMRON_PAGE = 'OMRON_PAGE'

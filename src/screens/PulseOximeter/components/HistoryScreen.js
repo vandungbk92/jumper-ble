@@ -35,7 +35,6 @@ export default function HistoryScreen(props) {
     };
 
     const renderItems = ({ item, index }) => {
-        console.log(item);
         return (
             <TouchableOpacity
                 style={{

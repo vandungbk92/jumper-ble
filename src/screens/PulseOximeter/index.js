@@ -7,26 +7,21 @@ import {
     ImageBackground,
     ScrollView,
     StyleSheet,
+    Modal,
 } from "react-native";
 import { BleManager } from "react-native-ble-plx";
 import { Buffer } from "buffer";
 import I18n from "../../utilities/I18n";
 import { styleContainer } from "../../stylesContainer";
-import {
-    postFileData,
-    postOximeterData,
-} from "../../epics-reducers/services/oximeterServices";
+import { postFileData } from "../../epics-reducers/services/oximeterServices";
 import { Ionicons, AntDesign, FontAwesome5 } from "@expo/vector-icons";
 import { KittenTheme } from "../../../config/theme";
 import { RkText } from "react-native-ui-kitten";
 import { HISTORY_PAGE } from "../../constants/router";
 import CircularProgress from "react-native-circular-progress-indicator";
 import Slider from "react-native-slider";
+import * as Location from "expo-location";
 import moment from "moment";
-import GradientButton from "../base/gradientButton";
-import AsyncStorageLib from "@react-native-async-storage/async-storage";
-import { CONSTANTS } from "../../constants";
-import { showToast } from "../../epics-reducers/services/common";
 
 const RNFS = require("react-native-fs");
 
@@ -38,11 +33,14 @@ const filePath = RNFS.DocumentDirectoryPath + "/data.txt";
 export default function PulseOximeter(props) {
     const [device, setDevice] = useState(null);
     const [deviceData, setDeviceData] = useState(null);
+    const [visible, setVisible] = useState();
+    const [deviceId, setDeviceId] = useState();
+    const [listDevice, setListDevice] = useState([]);
 
     useEffect(() => {
         props.navigation.setParams({
             onBackAction: onBackAction,
-            scanAndConnect: scanAndConnect,
+            checkPermissions: checkPermissions,
         });
     }, []);
 
@@ -63,12 +61,22 @@ export default function PulseOximeter(props) {
         props.navigation.goBack(null);
     };
 
+    const checkPermissions = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === "granted") {
+            scanAndConnect();
+        }
+    };
+
     const scanAndConnect = () => {
+        if (!deviceId) {
+            setVisible(true);
+        }
         if (device || deviceData) {
             setDeviceData(null);
             return;
         }
-        const id = "40:2E:71:47:0A:1F";
+        setDeviceId("40:2E:71:47:0A:1F");
         setDeviceData(null);
         manager.startDeviceScan(null, null, (error, device) => {
             if (error) {
@@ -186,42 +194,14 @@ export default function PulseOximeter(props) {
 
     const writeFile = async (data) => {
         try {
-            return RNFS.appendFile(
+            await RNFS.appendFile(
                 filePath,
                 JSON.stringify(data) + "\n",
                 "utf8"
-            )
-                .then((success) => {
-                    return true;
-                })
-                .catch((err) => {
-                    return false;
-                });
+            );
         } catch (e) {
             return false;
         }
-    };
-
-    const readFile = () => {
-        RNFS.readFile(filePath, "utf8")
-            .then((result) => {
-                console.log(result);
-            })
-            .catch((err) => {
-                console.log(err.message, err.code);
-            });
-    };
-
-    const deleteFile = async () => {
-        if (await RNFS.exists(filePath))
-            RNFS.unlink(filePath)
-                .then(() => {
-                    console.log("FILE DELETED");
-                })
-                .catch((err) => {
-                    console.log(err.message);
-                });
-        else showToast("Dữ liệu không tồn tại!");
     };
 
     const uploadToServer = async () => {
@@ -230,7 +210,16 @@ export default function PulseOximeter(props) {
                 filePath,
                 moment().format().substring(0, 10)
             );
-            await deleteFile();
+            if (data) {
+                if (await RNFS.exists(filePath))
+                    RNFS.unlink(filePath)
+                        .then(() => {
+                            console.log("FILE DELETED");
+                        })
+                        .catch((err) => {
+                            console.log(err.message);
+                        });
+            }
         }
     };
 
@@ -280,17 +269,7 @@ export default function PulseOximeter(props) {
                             />
                         </TouchableOpacity>
                     </View>
-                    <View
-                        style={{
-                            width: screenWidth * 0.5,
-                            height: screenWidth * 0.5,
-                            backgroundColor: "white",
-                            borderRadius: 100,
-                            alignSelf: "center",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
+                    <View style={styles.circle}>
                         <CircularProgress
                             value={deviceData ? deviceData[2] : 0}
                             progressValueColor={"#92BA92"}
@@ -304,18 +283,6 @@ export default function PulseOximeter(props) {
                 </View>
             </ImageBackground>
             <ScrollView style={{ flex: 1 }}>
-                <Text
-                    style={{
-                        alignSelf: "center",
-                        fontSize: 20,
-                        color: "#069A8E",
-                    }}
-                >
-                    Chỉ số Oxi trong máu ổn định
-                </Text>
-                <Text style={{ alignSelf: "center", color: "#069A8E" }}>
-                    Khoẻ mạnh
-                </Text>
                 <View
                     style={{
                         flex: 1,
@@ -370,9 +337,9 @@ export default function PulseOximeter(props) {
                                     style={{ height: 40 }}
                                     minimumValue={0}
                                     maximumValue={150}
-                                    trackStyle={customStyles3.track}
+                                    trackStyle={styles.track}
                                     thumbStyle={[
-                                        customStyles3.thumb,
+                                        styles.thumb,
                                         {
                                             backgroundColor: "#1DB9C3",
                                         },
@@ -430,9 +397,9 @@ export default function PulseOximeter(props) {
                                     style={{ height: 40 }}
                                     minimumValue={0}
                                     maximumValue={100}
-                                    trackStyle={customStyles3.track}
+                                    trackStyle={styles.track}
                                     thumbStyle={[
-                                        customStyles3.thumb,
+                                        styles.thumb,
                                         {
                                             backgroundColor: "#7027A0",
                                         },
@@ -494,9 +461,9 @@ export default function PulseOximeter(props) {
                                     style={{ height: 40 }}
                                     minimumValue={0}
                                     maximumValue={20}
-                                    trackStyle={customStyles3.track}
+                                    trackStyle={styles.track}
                                     thumbStyle={[
-                                        customStyles3.thumb,
+                                        styles.thumb,
                                         {
                                             backgroundColor: "#FEB139",
                                         },
@@ -508,28 +475,10 @@ export default function PulseOximeter(props) {
                         </View>
                     </View>
                 </View>
-                <GradientButton
-                    style={{ margin: 4 }}
-                    text={"Đọc"}
-                    onPress={() => readFile()}
-                />
             </ScrollView>
         </View>
     );
 }
-
-const customStyles3 = StyleSheet.create({
-    track: {
-        height: 3,
-        borderRadius: 5,
-        backgroundColor: "#d0d0d0",
-    },
-    thumb: {
-        width: 4,
-        height: 20,
-        borderRadius: 5,
-    },
-});
 
 PulseOximeter.navigationOptions = ({ navigation }) => ({
     headerLeft: () => (
@@ -548,9 +497,31 @@ PulseOximeter.navigationOptions = ({ navigation }) => ({
     headerRight: () => (
         <TouchableOpacity
             style={styleContainer.headerButton}
-            onPress={navigation.getParam("scanAndConnect")}
+            onPress={navigation.getParam("checkPermissions")}
         >
             <RkText rkType={"link"}>{I18n.t("Quét")}</RkText>
         </TouchableOpacity>
     ),
+});
+
+const styles = StyleSheet.create({
+    circle: {
+        width: screenWidth * 0.5,
+        height: screenWidth * 0.5,
+        backgroundColor: "white",
+        borderRadius: 100,
+        alignSelf: "center",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    track: {
+        height: 3,
+        borderRadius: 5,
+        backgroundColor: "#d0d0d0",
+    },
+    thumb: {
+        width: 4,
+        height: 20,
+        borderRadius: 5,
+    },
 });

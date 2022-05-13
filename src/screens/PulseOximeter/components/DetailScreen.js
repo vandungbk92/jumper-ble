@@ -64,11 +64,66 @@ export default function DetailScreen(props) {
                                 <RkText
                                     style={{ alignSelf: "center", margin: 4 }}
                                 >
+                                    Biểu đồ SpO2
+                                </RkText>
+                                <ScrollView horizontal={true}>
+                                    <LineChart
+                                        data={{
+                                            labels: spo2_data.data.map(
+                                                (item, index) => index
+                                            ),
+                                            datasets: [
+                                                {
+                                                    data: objectData.spo2,
+                                                },
+                                                {
+                                                    data: [80, 100],
+                                                    color: () => "transparent",
+                                                    strokeWidth: 0,
+                                                    withDots: false,
+                                                },
+                                            ],
+                                        }}
+                                        formatXLabel={(value) =>
+                                            value % 30 == 0 ? value : ""
+                                        }
+                                        width={
+                                            objectData.spo2.length * 2 > screenWidth
+                                                ? objectData.spo2.length * 2
+                                                : screenWidth
+                                        }
+                                        height={screenHeight / 3}
+                                        withHorizontalLabels={true}
+                                        chartConfig={{
+                                            backgroundColor: "#fff",
+                                            backgroundGradientFrom: "#fff",
+                                            backgroundGradientTo: "#fff",
+                                            fillShadowGradientFrom: "#fff",
+                                            fillShadowGradientTo: "#fff",
+                                            decimalPlaces: 2,
+                                            color: (opacity = 1) =>
+                                                `rgba(0, 0, 0, ${opacity})`,
+                                            labelColor: () => `rgba(0,0,0,1)`,
+                                            useShadowColorFromDataset: false,
+                                            strokeWidth: 2,
+                                            decimalPlaces: 0,
+                                        }}
+                                        yAxisSuffix="%"
+                                        withDots={false}
+                                        withVerticalLines={false}
+                                    />
+                                </ScrollView>
+                                <RkText
+                                    style={{ alignSelf: "center", margin: 4 }}
+                                >
                                     Biểu đồ nhịp tim
                                 </RkText>
                                 <ScrollView horizontal={true}>
                                     <LineChart
                                         data={{
+                                            labels: spo2_data.data.map(
+                                                (item, index) => index
+                                            ),
                                             datasets: [
                                                 {
                                                     data: objectData.pulse,
@@ -87,9 +142,8 @@ export default function DetailScreen(props) {
                                             ],
                                         }}
                                         width={
-                                            objectData.pulse.length >
-                                            screenWidth
-                                                ? objectData.pulse.length
+                                            objectData.pulse.length * 2 > screenWidth
+                                                ? objectData.pulse.length * 2
                                                 : screenWidth
                                         }
                                         height={screenHeight / 3}
@@ -108,59 +162,12 @@ export default function DetailScreen(props) {
                                             strokeWidth: 2,
                                             decimalPlaces: 0,
                                         }}
-                                        withDots={false}
-                                        withVerticalLines={false}
-                                        style={{
-                                            paddingRight: 40,
-                                        }}
-                                    />
-                                </ScrollView>
-                                <RkText
-                                    style={{ alignSelf: "center", margin: 4 }}
-                                >
-                                    Biểu đồ SpO2
-                                </RkText>
-                                <ScrollView horizontal={true}>
-                                    <LineChart
-                                        data={{
-                                            datasets: [
-                                                {
-                                                    data: objectData.spo2,
-                                                },
-                                                {
-                                                    data: [0, 100],
-                                                    color: () => "transparent",
-                                                    strokeWidth: 0,
-                                                    withDots: false,
-                                                },
-                                            ],
-                                        }}
-                                        width={
-                                            objectData.spo2.length > screenWidth
-                                                ? objectData.spo2.length
-                                                : screenWidth
+                                        formatXLabel={(value) =>
+                                            value % 30 == 0 ? value : ""
                                         }
-                                        height={screenHeight / 3}
-                                        withHorizontalLabels={true}
-                                        chartConfig={{
-                                            backgroundColor: "#fff",
-                                            backgroundGradientFrom: "#fff",
-                                            backgroundGradientTo: "#fff",
-                                            fillShadowGradientFrom: "#fff",
-                                            fillShadowGradientTo: "#fff",
-                                            decimalPlaces: 2,
-                                            color: (opacity = 1) =>
-                                                `rgba(0, 0, 0, ${opacity})`,
-                                            labelColor: () => `rgba(0,0,0,1)`,
-                                            useShadowColorFromDataset: false,
-                                            strokeWidth: 2,
-                                            decimalPlaces: 0,
-                                        }}
+                                        yAxisSuffix="bpm"
                                         withDots={false}
                                         withVerticalLines={false}
-                                        style={{
-                                            paddingRight: 40,
-                                        }}
                                     />
                                 </ScrollView>
                                 <View style={{ flex: 1 }}>
@@ -177,7 +184,7 @@ export default function DetailScreen(props) {
                                             Thời gian đo:{" "}
                                             {moment(
                                                 history_data.created_at
-                                            ).format("HH:mm:ss DD-MM-YYYY")}
+                                            ).format("HH:mm:ss")}
                                         </RkText>
                                         <RkText
                                             style={{
@@ -226,22 +233,20 @@ export default function DetailScreen(props) {
                                                         flex: 1,
                                                     }}
                                                 >
-                                                    {data && (
-                                                        <Text
-                                                            style={{
-                                                                alignSelf:
-                                                                    "flex-end",
-                                                            }}
-                                                        >
-                                                            {
-                                                                history_data.minPulseRate
-                                                            }{" "}
-                                                            /{" "}
-                                                            {
-                                                                history_data.maxPulseRate
-                                                            }
-                                                        </Text>
-                                                    )}
+                                                    <Text
+                                                        style={{
+                                                            alignSelf:
+                                                                "flex-end",
+                                                        }}
+                                                    >
+                                                        {
+                                                            history_data.minPulseRate
+                                                        }{" "}
+                                                        /{" "}
+                                                        {
+                                                            history_data.maxPulseRate
+                                                        }
+                                                    </Text>
                                                 </View>
                                             </View>
                                         </View>
@@ -285,18 +290,15 @@ export default function DetailScreen(props) {
                                                         alignSelf: "flex-end",
                                                     }}
                                                 >
-                                                    {data && (
-                                                        <Text
-                                                            style={{
-                                                                alignSelf:
-                                                                    "flex-end",
-                                                            }}
-                                                        >
-                                                            {history_data.minPI}{" "}
-                                                            /{" "}
-                                                            {history_data.maxPI}
-                                                        </Text>
-                                                    )}
+                                                    <Text
+                                                        style={{
+                                                            alignSelf:
+                                                                "flex-end",
+                                                        }}
+                                                    >
+                                                        {history_data.minPI} /{" "}
+                                                        {history_data.maxPI}
+                                                    </Text>
                                                 </View>
                                             </View>
                                         </View>
