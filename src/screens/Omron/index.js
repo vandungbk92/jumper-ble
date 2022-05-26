@@ -51,6 +51,7 @@ export default function OmronScreen(props) {
     };
 
     const scanAndConnect = () => {
+        console.log('1111111111')
         if (device || deviceData) {
             setDeviceData(null);
             return;
@@ -59,7 +60,7 @@ export default function OmronScreen(props) {
         setDeviceData(null);
         manager.startDeviceScan(null, null, (error, device) => {
             if (error) {
-                console.log(error);
+                console.log(JSON.stringify(error), 'errorerror');
                 setDeviceData(null);
                 return;
             }
@@ -121,7 +122,7 @@ export default function OmronScreen(props) {
                                 console.log("read err", err);
                             });
                     } else {
-                        console.log("Not monitor characteristic");
+
                     }
                 });
             }

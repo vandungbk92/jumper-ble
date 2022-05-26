@@ -8,37 +8,37 @@ import { createStackNavigator } from "react-navigation-stack";
 import { createDrawerNavigator } from "react-navigation-drawer";
 import NavDrawer from "./NavDrawer";
 import {
-    MAIN_NAVIGATOR,
-    APP_NAVIGATOR,
-    VERIFICATION_NAVIGATOR,
-    LOGIN_PAGE,
-    LOGIN_PHONE_PAGE,
-    REGISTER_PAGE,
-    HOME_PAGE,
-    PROFILE_PAGE,
-    FORGET_PASSWORD_PAGE,
-    RESET_PASSWORD_PAGE,
-    PHONE_VERIFICATION_PAGE,
-    VERIFICATION_USER_PAGE,
-    VERIFICATION_CODE_PAGE,
-    IMAGE_BROWSER_PAGE,
-    VIEW_IMAGE_PAGE,
-    CANHAN_PAGE,
-    CHANGE_PHONE_PAGE,
-    CHANGE_PASSWORD_PAGE,
-    THONGBAO_PAGE,
-    THONGBAO_CANHAN,
-    THONGBAO_CONGDONG,
-    SPO2_PAGE,
-    UPLOAD_PAGE,
-    VIDEO_PAGE,
-    AUDIO_PAGE,
-    PULSEOXIMETER_PAGE,
-    HISTORY_PAGE,
-    SETTINGS_PAGE,
-    EKO_PAGE,
-    DETAIL_OXIMETER_PAGE,
-    OMRON_PAGE,
+  MAIN_NAVIGATOR,
+  APP_NAVIGATOR,
+  VERIFICATION_NAVIGATOR,
+  LOGIN_PAGE,
+  LOGIN_PHONE_PAGE,
+  REGISTER_PAGE,
+  HOME_PAGE,
+  PROFILE_PAGE,
+  FORGET_PASSWORD_PAGE,
+  RESET_PASSWORD_PAGE,
+  PHONE_VERIFICATION_PAGE,
+  VERIFICATION_USER_PAGE,
+  VERIFICATION_CODE_PAGE,
+  IMAGE_BROWSER_PAGE,
+  VIEW_IMAGE_PAGE,
+  CANHAN_PAGE,
+  CHANGE_PHONE_PAGE,
+  CHANGE_PASSWORD_PAGE,
+  THONGBAO_PAGE,
+  THONGBAO_CANHAN,
+  THONGBAO_CONGDONG,
+  SPO2_PAGE,
+  UPLOAD_PAGE,
+  VIDEO_PAGE,
+  AUDIO_PAGE,
+  PULSEOXIMETER_PAGE,
+  HISTORY_PAGE,
+  SETTINGS_PAGE,
+  EKO_PAGE,
+  DETAIL_OXIMETER_PAGE,
+  OMRON_PAGE, DETAIL_VIEW_PAGE, DETAIL_ANALYSIS_PAGE, HISTORY_ANALYSIS_PAGE,
 } from "../constants/router";
 
 import { getStoreInstance } from "../epics-reducers/store";
@@ -81,6 +81,9 @@ import SettingsScreen from "../screens/Settings";
 import EkoDevice from "../screens/Eko";
 import DetailScreen from "../screens/PulseOximeter/components/DetailScreen";
 import OmronScreen from "../screens/Omron";
+import DetailViewScreen from "../screens/PulseOximeter/components/DetailViewScreen";
+import HistoryAnalysisScreen from "../screens/PulseOximeter/components/HistoryAnalysisScreen";
+import DetailAnalysisScreen from "../screens/PulseOximeter/components/DetailAnalysisScreen";
 
 const DrawerNavigator = createDrawerNavigator(
     {
@@ -179,6 +182,9 @@ const AppNavigator = createStackNavigator(
             screen: PulseOximeter,
         },
         [HISTORY_PAGE]: HistoryScreen,
+        [DETAIL_VIEW_PAGE]: DetailViewScreen,
+        [HISTORY_ANALYSIS_PAGE]: HistoryAnalysisScreen,
+        [DETAIL_ANALYSIS_PAGE]: DetailAnalysisScreen,
 
         [SETTINGS_PAGE]: SettingsScreen,
 

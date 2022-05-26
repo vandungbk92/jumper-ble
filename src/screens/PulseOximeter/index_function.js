@@ -6,9 +6,9 @@ import {
   Dimensions,
   ImageBackground,
   ScrollView,
-  StyleSheet, Alert,
+  StyleSheet,
 } from "react-native";
-
+import {BleManager} from "react-native-ble-plx";
 import {Buffer} from "buffer";
 import I18n from "../../utilities/I18n";
 import {styleContainer} from "../../stylesContainer";
@@ -19,60 +19,102 @@ import {
 import {Ionicons, AntDesign, FontAwesome5} from "@expo/vector-icons";
 import {KittenTheme} from "../../../config/theme";
 import {RkText} from "react-native-ui-kitten";
-import {DETAIL_ANALYSIS_PAGE, HISTORY_ANALYSIS_PAGE, HISTORY_PAGE} from "../../constants/router";
+import {HISTORY_PAGE} from "../../constants/router";
 import CircularProgress from "react-native-circular-progress-indicator";
 import Slider from "react-native-slider";
 import moment from "moment";
 import GradientButton from "../base/gradientButton";
 import {showToast} from "../../epics-reducers/services/common";
-import {BleManager, BleErrorCode} from "react-native-ble-plx";
 const manager = new BleManager();
 const RNFS = require("react-native-fs");
-import produce from 'immer';
-import {tw} from 'react-native-tailwindcss';
+
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get("screen");
 
 const filePath = RNFS.DocumentDirectoryPath + "/data.txt";
 
-import BlueModal from './BlueModal';
-
 export default function PulseOximeter(props) {
-  const [device, setDevice] = useState(null); // Thông tin device đang kết nối
 
-  // Loại ghi dữ liệu từ thiết bị 1. chỉ đọc dữ liệu. 2. đọc và ghi dữ liệu 3. đọc ghi và phân tích.
-  const [typeRecord, setTypeRecord] = useState(1);
 
-  const [showModal, setShowModal] = useState(false); // Modal quét thiết bị
-
-  const [deviceScan, setDeviceScan] = useState([]); // danh sách các device quét được.
-
-  const [deviceData, setDeviceData] = useState(null); // dữ liệu đọc từ thiết bị
-
-  const [blueError, setBlueError] = useState(null); // lỗi khi kết nối thiết bị.
+  const [device, setDevice] = useState(null);
+  const [deviceData, setDeviceData] = useState(null);
 
   useEffect(() => {
     props.navigation.setParams({
-      onBackAction: onBackAction
+      onBackAction: onBackAction,
+      scanAndConnect: scanAndConnect,
     });
-
-    manager.onDeviceDisconnected(device?.id,  (err, device) => {
-      console.log(device.id, 'onDeviceDisconnectedonDeviceDisconnected');
-      resetBlue()
-    });
-
   }, []);
+
+  useEffect(() => {
+    manager.onStateChange((state) => {
+      const subscription = manager.onStateChange((state) => {
+        if (state === "PoweredOn") {
+          scanAndConnect();
+          subscription.remove();
+        }
+      }, true);
+      return () => subscription.remove();
+    });
+  }, [manager]);
 
   const onBackAction = async () => {
     await onDestroyBLE();
     props.navigation.goBack(null);
   };
 
+  const scanAndConnect = () => {
+    try {
+      console.log(deviceData, device?.idv, 'scanAndConnect deviceData');
+      if (device || deviceData) {
+        setDeviceData(null);
+        return;
+      }
+
+      console.log( 'scanAndConnect setDeviceData');
+      const id = "40:2E:71:47:0A:1F";
+      setDeviceData(null);
+      manager.startDeviceScan(null, null,  (error, device) => {
+        if (error) {
+
+          const subscription = manager.onStateChange((state) => {
+            console.log(state, 'statestatestate')
+            if (state === 'PoweredOn') {
+              subscription.remove();
+            }
+          }, true);
+
+          console.log(JSON.stringify(error), 'errorerror123')
+          setDeviceData(null);
+          return;
+        }
+
+        if (device.id === id) {
+          manager.stopDeviceScan();
+          manager.onDeviceDisconnected(id, async (err, device) => {
+            setDevice(null);
+            setDeviceData(null);
+            await uploadToServer();
+          });
+          connectDevice(device);
+        }
+      });
+    }catch (e) {
+
+    }
+  };
+
   const connectDevice = (device) => {
-    device.connect().then(async (device) => {
+    console.log('connectDeviceconnectDevice')
+    device
+      .connect()
+      .then(async (device) => {
         setDevice(device);
         await readData(device);
-      }).catch((error) => {return;});
+      })
+      .catch((error) => {
+        return;
+      });
   };
 
   const convertHexToDecimal = (hex) => {
@@ -126,7 +168,6 @@ export default function PulseOximeter(props) {
       oxigenSaturation: data[2],
       pulseRate: data[1],
       perfussionIndex: data[3] / 10,
-      time: moment(),
     };
     if (
       oxiData.oxigenSaturation !== 127 &&
@@ -134,17 +175,21 @@ export default function PulseOximeter(props) {
       oxiData.perfussionIndex !== 0
     ) {
       setDeviceData(data);
-      if(typeRecord !== 1){
-        await writeFile(oxiData);
-      }
+
+      await writeFile({
+        time: moment().format(),
+        data: oxiData,
+      });
     }
   };
 
   const onDestroyBLE = async () => {
     try {
+      await manager.cancelDeviceConnection("40:2E:71:47:0A:1F");
+      setDevice(null);
+      setDeviceData(null);
       await manager.stopDeviceScan();
-      this?.manager?.destroy();
-      resetBlue()
+      await uploadToServer();
     } catch (err) {
       console.log("destroy error", err.message);
     }
@@ -152,172 +197,57 @@ export default function PulseOximeter(props) {
 
   const writeFile = async (data) => {
     try {
-      let url = null;
-      if(typeRecord === 2){
-        url = filePath
-      }else if(typeRecord === 3){
-        let fileNm = '/' + data.time.format('YYYYMMDDHHmm') + '.txt';
-        url = RNFS.DocumentDirectoryPath + fileNm;
-
-      }
-
-      // nếu là quét ghi dữ liệu thì đưa vào file filePath.
-      // nếu là quét ghi phân tích thì đưa vào file filePaths - ghi dữ liệu theo giờ. tránh ghi quá nhiều dữ liệu.
-      if(url){
-        return RNFS.appendFile(
-          url,
-          JSON.stringify(data) + "\n",
-          "utf8"
-        )
-          .then((success) => {
-            console.log(data.time.format('mm:ss'))
-            if(typeRecord === 3 && data.time.format('ss') === "59"){
-              let fileNm = data.time.format('YYYYMMDDHHmm') + '.txt';
-              handleUplToServer(url, fileNm);
-            }
-            return true;
-          })
-          .catch((err) => {
-            return false;
-          });
-      }
+      return RNFS.appendFile(
+        filePath,
+        JSON.stringify(data) + "\n",
+        "utf8"
+      )
+        .then((success) => {
+          return true;
+        })
+        .catch((err) => {
+          return false;
+        });
     } catch (e) {
       return false;
     }
   };
 
-  const readFile = async () => {
-    // lấy danh sách các file trong thư mục.
-    let result = await RNFS.readDir(RNFS.DocumentDirectoryPath);
-    result.forEach(curr => {
-      if(curr.isFile() && curr?.name?.split('.')?.pop() === 'txt'){
-        RNFS.readFile(curr.path, "utf8")
-          .then((result) => {
-            console.log(curr, curr.path);
-          })
-          .catch((err) => {
-            console.log(err.message, err.code, 'err');
-          });
-      }
-    })
+  const readFile = () => {
+    RNFS.readFile(filePath, "utf8")
+      .then((result) => {
+        console.log(result, 'result');
+      })
+      .catch((err) => {
+        console.log(err.message, err.code, 'err');
+      });
   };
 
-  const deleteFile = async (filePathDel) => {
-    if (await RNFS.exists(filePathDel))
-      RNFS.unlink(filePathDel)
+  const deleteFile = async () => {
+    if (await RNFS.exists(filePath))
+      RNFS.unlink(filePath)
         .then(() => {
           console.log("FILE DELETED");
         })
         .catch((err) => {
           console.log(err.message);
         });
+    else showToast("Dữ liệu không tồn tại!");
   };
 
   const uploadToServer = async () => {
-    // lấy danh sách các file trong thư mục.
-    let result = await RNFS.readDir(RNFS.DocumentDirectoryPath);
-
-    result.forEach(curr => {
-      if(curr.isFile() && curr?.name?.split('.')?.pop() === 'txt'){
-        handleUplToServer(curr.path, curr.name);
-      }
-    })
-  };
-
-  const handleUplToServer = async (fileUri, fileNm) => {
-    let fileExist = await RNFS.exists(fileUri)
-    if (fileExist && typeRecord !== 1) {
+    // console.log('1111111111111111')
+    if (await RNFS.exists(filePath)) {
       const data = await postFileData(
-        fileUri,
-        fileNm,
-        typeRecord
+        filePath,
+        moment().format().substring(0, 10)
       );
-      if(data && data.success){
-        await deleteFile(fileUri);
-      }
+      await deleteFile();
     }
   };
-
-  const showModalFunc = (type) => {
-    setShowModal(!showModal);
-    setTypeRecord(type);
-    try {
-      manager.startDeviceScan(null, null,  (error, device) => {
-        if (error) {
-          console.log(JSON.stringify(error), 'error')
-          if(error.errorCode === BleErrorCode.BluetoothPoweredOff){
-            // showToast('Vui lòng bật Bluetooth trước khi kết nối thiết bị');
-            setBlueError('Vui lòng bật Bluetooth trước khi kết nối thiết bị')
-          }else
-            setBlueError('Lỗi quét khi kết nối thiết bị, liên hệ quản trị viên')
-          return;
-        }
-
-        if(device.name && device.id && device.name === 'My Oximeter'){
-          console.log(device.name , device.id, 'device scan');
-          setDeviceScan(produce(statePrev => {
-            if (!statePrev.find(curr => curr.id === device.id)) {
-              statePrev.push(device)
-            }
-          }))
-        }
-      });
-    }catch (e) {
-
-    }
-  };
-
-  const docdulieuFunc = () => {
-    Alert.alert(
-      'Quét dữ liệu',
-      'Vui lòng chọn loại quét dữ liệu',
-      [
-        {
-          text: "Chỉ đọc dữ liệu",
-          onPress: () => showModalFunc(1),
-          style: 'cancel',
-        },
-        {text: 'Đọc và ghi dữ liệu', onPress: () => showModalFunc(2)},
-      ],
-    );
-  }
-
-  const handleModalFunc = (data) => {
-    setBlueError(null)
-    manager.stopDeviceScan();
-    if(data){
-      connectDevice(data);
-    }
-  }
-
-  const stopConnect = async () => {
-    try {
-      await resetBlue();
-      if(device){
-        let isConnected = await device.isConnected();
-        console.log(isConnected, 'isConnectedisConnected')
-        if(isConnected){
-          await device.cancelConnection();
-          // await manager.cancelDeviceConnection(device.id)
-        }
-        // await manager.cancelDeviceConnection(device.id);
-      }
-
-    } catch (err) {
-      console.log("destroy error", err.message);
-    }
-  }
-
-  const resetBlue = async () => {
-    setTypeRecord(1);
-    setDevice(null);
-    setDeviceScan([]);
-    setDeviceData(null);
-    await uploadToServer();
-  }
 
   return (
-    <View style={tw.flex1}>
+    <View style={{flex: 1}}>
       <ImageBackground
         source={require("../../assets/bg.jpg")}
         style={{
@@ -348,7 +278,7 @@ export default function PulseOximeter(props) {
                 alignItems: "center",
               }}
               onPress={() =>
-                props.navigation.navigate(HISTORY_ANALYSIS_PAGE)
+                props.navigation.navigate(HISTORY_PAGE)
               }
             >
               <Text style={{color: "white", fontSize: 18}}>
@@ -405,7 +335,65 @@ export default function PulseOximeter(props) {
           }}
         >
           <View style={{flex: 1}}>
-
+            <View>
+              <View style={{paddingHorizontal: 16}}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                  }}
+                >
+                  <View
+                    style={{
+                      flex: 4,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      paddingHorizontal: 16,
+                    }}
+                  >
+                    <FontAwesome5
+                      name="heartbeat"
+                      size={24}
+                      color="#1DB9C3"
+                    />
+                    <Text
+                      style={{
+                        marginHorizontal: 4,
+                        color: "#1DB9C3",
+                      }}
+                    >
+                      Nhịp tim
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      paddingHorizontal: 16,
+                    }}
+                  >
+                    <Text style={{alignSelf: "flex-end"}}>
+                      {deviceData ? deviceData[1] : 0}
+                    </Text>
+                  </View>
+                </View>
+                <Slider
+                  value={
+                    deviceData ? parseInt(deviceData[1]) : 0
+                  }
+                  style={{height: 40}}
+                  minimumValue={0}
+                  maximumValue={150}
+                  trackStyle={customStyles3.track}
+                  thumbStyle={[
+                    customStyles3.thumb,
+                    {
+                      backgroundColor: "#1DB9C3",
+                    },
+                  ]}
+                  minimumTrackTintColor="#1DB9C3"
+                  disabled={true}
+                />
+              </View>
+            </View>
             <View>
               <View style={{paddingHorizontal: 16}}>
                 <View
@@ -466,67 +454,6 @@ export default function PulseOximeter(props) {
                 />
               </View>
             </View>
-
-            <View>
-              <View style={{paddingHorizontal: 16}}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <View
-                    style={{
-                      flex: 4,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      paddingHorizontal: 16,
-                    }}
-                  >
-                    <FontAwesome5
-                      name="heartbeat"
-                      size={24}
-                      color="#1DB9C3"
-                    />
-                    <Text
-                      style={{
-                        marginHorizontal: 4,
-                        color: "#1DB9C3",
-                      }}
-                    >
-                      Nhịp tim
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      paddingHorizontal: 16,
-                    }}
-                  >
-                    <Text style={{alignSelf: "flex-end"}}>
-                      {deviceData ? deviceData[1] : 0}
-                    </Text>
-                  </View>
-                </View>
-                <Slider
-                  value={
-                    deviceData ? parseInt(deviceData[1]) : 0
-                  }
-                  style={{height: 40}}
-                  minimumValue={0}
-                  maximumValue={150}
-                  trackStyle={customStyles3.track}
-                  thumbStyle={[
-                    customStyles3.thumb,
-                    {
-                      backgroundColor: "#1DB9C3",
-                    },
-                  ]}
-                  minimumTrackTintColor="#1DB9C3"
-                  disabled={true}
-                />
-              </View>
-            </View>
-
             <View>
               <View style={{paddingHorizontal: 16}}>
                 <View
@@ -593,34 +520,11 @@ export default function PulseOximeter(props) {
             </View>
           </View>
         </View>
-
-        <BlueModal deviceScan={deviceScan} showModal={showModal} handleModalFunc={handleModalFunc}
-                   blueError={blueError}/>
-
-        {/*<GradientButton
+        <GradientButton
           style={{margin: 4}}
           text={"Đọc"}
           onPress={() => readFile()}
-        />*/}
-        {
-          device ? <GradientButton
-            style={{margin: 4}}
-            text={typeRecord !== 1 ? "Dừng và lưu dữ liệu" : "Dừng đọc dữ liệu"}
-            onPress={() => stopConnect()}
-          /> : <View style={[tw.flexRow, tw.justifyCenter]}>
-
-            <GradientButton
-              style={{margin: 4}}
-              text={"Quét ghi dữ liệu"}
-              onPress={docdulieuFunc}
-            />
-            <GradientButton
-              style={{margin: 4}}
-              text={"Quét phân tích"}
-              onPress={() => showModalFunc(3)}
-            />
-          </View>
-        }
+        />
       </ScrollView>
     </View>
   );
@@ -653,4 +557,12 @@ PulseOximeter.navigationOptions = ({navigation}) => ({
     </TouchableOpacity>
   ),
   headerTitle: () => <RkText rkType="header4">{I18n.t("Oximeter")}</RkText>,
+  headerRight: () => (
+    <TouchableOpacity
+      style={styleContainer.headerButton}
+      onPress={navigation.getParam("scanAndConnect")}
+    >
+      <RkText rkType={"link"}>{I18n.t("Quét")}</RkText>
+    </TouchableOpacity>
+  ),
 });

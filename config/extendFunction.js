@@ -13,6 +13,12 @@ export const extendFunction = (store) => {
   axios.interceptors.request.use(function (config) {
     if (__DEV__) console.log(config.method, config.url, JSON.stringify(config.data))
     let isLoading = store.getState().isLoading
+
+    if (config.hasOwnProperty('hiddenLoading')) {
+      isLoading = config.hiddenLoading;
+      delete config.hiddenLoading;
+    }
+
     if (!isLoading) {
       store.dispatch(fetchLoading(true))
     }
