@@ -26,6 +26,7 @@ import { fetchUsersInfoSuccess } from '../../epics-reducers/fetch/fetch-users-in
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import {fetchLogoutRequest} from "../../epics-reducers/fetch/fetch-login.duck";
 import {NavigationActions, StackActions} from "react-navigation";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 class CanhanPage extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -102,6 +103,8 @@ class CanhanPage extends React.Component {
   };
 
   userLogout = async  () => {
+
+    await AsyncStorage.removeItem(CONSTANTS._CITIZEN_LOGIN_);
     await this.props.dispatch(fetchLogoutRequest());
 
     const resetAction = StackActions.reset({

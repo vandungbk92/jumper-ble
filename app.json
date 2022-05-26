@@ -49,6 +49,7 @@
       "googleServicesFile": "./google-services.json",
       "userInterfaceStyle": "automatic"
     },
-    "description": ""
+    "description": "",
+    "plugins": ["@config-plugins/react-native-ble-plx"]
   }
 }

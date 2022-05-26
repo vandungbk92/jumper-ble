@@ -24,6 +24,7 @@ import { userChangePassword } from '../../epics-reducers/services/userServices';
 import { showToast, checkValidate } from '../../epics-reducers/services/common';
 
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 class ChangePasswordPage extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -69,13 +70,16 @@ class ChangePasswordPage extends React.Component {
     }
     
     const dataRequest = {
-      old_matkhau: this.state.oldpassword,
-      new_matkhau: this.state.password,
+      old_password: this.state.oldpassword,
+      new_password: this.state.password,
     };
+
+
     const data = await userChangePassword(dataRequest);
     if (data) {
       showToast('Vui lòng sử dụng mật khẩu đã thay đổi để đăng nhập');
-      this.props.dispatch(fetchLogoutRequest());
+      await AsyncStorage.removeItem(CONSTANTS._CITIZEN_LOGIN_);
+      await this.props.dispatch(fetchLogoutRequest());
       this.props.navigation.navigate(HOME_PAGE);
     }
   };

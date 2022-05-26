@@ -52,14 +52,24 @@ class UserProfile extends React.Component {
   };
 
   userLogout = async  () => {
-    await unregisterDevice();
-    AsyncStorage.removeItem(CONSTANTS._CITIZEN_LOGIN_);
-    await this.props.dispatch(fetchLogoutRequest());
-    const resetAction = StackActions.reset({
-      index: 0,
-      actions: [NavigationActions.navigate({ routeName: MAIN_NAVIGATOR })],
-    });
-    this.props.navigation.dispatch(resetAction);
+    try{
+      console.log('userLogoutuserLogoutuserLogout')
+      // await unregisterDevice();
+      await AsyncStorage.removeItem(CONSTANTS._CITIZEN_LOGIN_);
+
+      let userToken = await AsyncStorage.getItem(
+        CONSTANTS._CITIZEN_LOGIN_
+      );
+      console.log(userToken, 'userLogoutuserLogout')
+      await this.props.dispatch(fetchLogoutRequest());
+      /*const resetAction = StackActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: MAIN_NAVIGATOR })],
+      });
+      this.props.navigation.dispatch(resetAction);*/
+    }catch (e) {
+      console.log(e)
+    }
   };
 
   preventBeforeLogin = (routeName) => {
@@ -258,7 +268,7 @@ class UserProfile extends React.Component {
                 >
                   <MaterialCommunityIcons name="arrow-right-thick" size={24} color="white"/>
                 </View>
-                <RkText style={[tw.flex1, tw.mX2, tw.textLg]}>Đăng xuất</RkText>
+                <RkText style={[tw.flex1, tw.mX2, tw.textLg]}>Đăng xuất 111</RkText>
                 <MaterialCommunityIcons
                   name="chevron-right"
                   size={20}

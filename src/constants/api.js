@@ -11,8 +11,8 @@ export const API = {
   OTP_CREATE: '/api/otp/create',
   OTP_CONFIRM: '/api/otp/confirm',
 
-  USER_FORGET_PASSWORD: '/api/benhnhan/reset-password',
-  USER_CHANGE_PASSWORD: '/api/benhnhan/change-password',
+  USER_FORGET_PASSWORD: '/api/users/reset-password',
+  USER_CHANGE_PASSWORD: '/api/users/change-password',
 
   USER_VERIFY_PHONE: '/api/benhnhan/xac-thuc-dien-thoai',
   USER_VERIFY_FORGOT_PASSWORD: '/api/benhnhan/xac-thuc-quen-mat-khau',
@@ -114,5 +114,7 @@ export const API = {
   KETQUAKHAMBENH: '/api/ket-qua-kham',
   KETQUAKHAMBENH_ID: '/api/ket-qua-kham/{0}',
   KETQUAKHAMBENH_QUERY: '/api/benhnhan/ketquakham?page={0}&limit={1}{2}',
-  PULSE_OXIMETER: '/api/pulse-oximeter',
+  PULSE_OXIMETER: '/api/pulse-oximeter?page={0}&limit={1}{2}',
+  PULSE_OXIMETER_DETAL: '/api/pulse-oximeter/detail',
+  SETTING: '/api/setting/me',
 };

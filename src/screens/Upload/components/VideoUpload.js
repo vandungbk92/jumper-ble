@@ -4,6 +4,7 @@ import {
     View,
     TouchableOpacity,
     Platform,
+    Text
 } from "react-native";
 import {Camera} from "expo-camera";
 import {Ionicons, EvilIcons} from "@expo/vector-icons";
@@ -19,6 +20,7 @@ export default function VideoUpload(props) {
     const [visible, setVisible] = useState(false);
     const [uri, setUri] = useState(null);
     const [status, setStatus] = React.useState({});
+    const [time, setTime] = useState(0);
     const video = React.useRef(null);
 
     const handleCamera = async () => {
@@ -119,6 +121,7 @@ export default function VideoUpload(props) {
                         setCamera(ref);
                     }}
                 >
+                    <Text>{time}</Text>
                     <View
                         style={{
                             flex: 1,
