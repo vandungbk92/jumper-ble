@@ -1,4 +1,4 @@
 export const COMMON_APP = {
-  HOST_API: 'http://192.168.1.217:8080',
+  HOST_API: 'https://data.thinklabs.com.vn',
   APP_NAME: 'Aibolit'
 };
