@@ -7,6 +7,8 @@ import {
   ImageBackground,
   ScrollView,
   StyleSheet, Alert,
+  Platform,
+  PermissionsAndroid
 } from "react-native";
 
 import {Buffer} from "buffer";
@@ -52,6 +54,22 @@ export default function PulseOximeter(props) {
   const [blueError, setBlueError] = useState(null); // lỗi khi kết nối thiết bị.
 
   useEffect(() => {
+
+    /*if (Platform.OS === "android" && Platform.Version >= 23) {
+      // Scanning: Checking permissions...
+      const enabled = yield call(PermissionsAndroid.check, PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+      if (!enabled) {
+        // Scanning: Permissions disabled, showing...
+        const granted = yield call(PermissionsAndroid.request, PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          // Scanning: Permissions not granted, aborting...
+          return;
+        }
+      }
+    }*/
+
+    requestLocationPermission()
+
     props.navigation.setParams({
       onBackAction: onBackAction
     });
@@ -62,6 +80,23 @@ export default function PulseOximeter(props) {
     });
 
   }, []);
+
+  const requestLocationPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      )
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        return true
+      } else {
+        alert("Vui long bật quyền truy cập vị trí");
+        return false
+      }
+    } catch (err) {
+      console.warn(err)
+      return false
+    }
+  }
 
   const onBackAction = async () => {
     await onDestroyBLE();
@@ -238,7 +273,11 @@ export default function PulseOximeter(props) {
     }
   };
 
-  const showModalFunc = (type) => {
+  const showModalFunc = async (type) => {
+    let permisson = await requestLocationPermission();
+    if(!permisson){
+      return null;
+    }
     setShowModal(!showModal);
     setTypeRecord(type);
     try {
