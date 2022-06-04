@@ -57,13 +57,17 @@ export default function HistoryAnalysisScreen(props) {
         >
           <CircularProgress
             value={item.avgSpO2}
-            progressValueColor={"#92BA92"}
+            // progressValueColor={"#92BA92"}
             maxValue={100}
             valueSuffix={"%"}
-            inActiveStrokeColor={"#2ecc71"}
+            // inActiveStrokeColor={"#2ecc71"}
             inActiveStrokeOpacity={0.2}
             radius={screenWidth * 0.12}
             circleBackgroundColor={"white"}
+            inActiveStrokeColor={"black"}
+            progressValueColor={"#096dd9"}
+            activeStrokeColor={'#ff7875'}
+            activeStrokeSecondaryColor={'#40a9ff'}
           />
         </View>
         <View
@@ -108,4 +112,16 @@ HistoryAnalysisScreen.navigationOptions = ({navigation}) => ({
     </TouchableOpacity>
   ),
   headerTitle: () => <RkText rkType="header4">{I18n.t("Phân tích SP02")}</RkText>,
+  headerRight: () => (
+    <TouchableOpacity
+      style={styleContainer.headerButton}
+      onPress={() => navigation.navigate('HOME_PAGE')}
+    >
+      <Ionicons
+        name="ios-home"
+        size={20}
+        color={KittenTheme.colors.appColor}
+      />
+    </TouchableOpacity>
+  ),
 });

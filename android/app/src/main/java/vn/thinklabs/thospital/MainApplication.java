@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import org.wonday.pdf.RCTPdfView;
+import com.ReactNativeBlobUtil.ReactNativeBlobUtilPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;

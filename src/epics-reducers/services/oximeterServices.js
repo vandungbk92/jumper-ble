@@ -47,6 +47,37 @@ export function getOximeterDetail() {
     });
 }
 
+export function getReport(id){
+  return axios
+    .get(`${COMMON_APP.HOST_API}/api/pulse-oximeter/phantich/${id}`)
+    .then((res) => {
+      if (res.data) {
+        return res.data;
+      } else {
+        return null;
+      }
+    })
+    .catch((error) => {
+      return null;
+    });
+}
+
+export function getHtml(){
+  return axios
+    .get(`${COMMON_APP.HOST_API}/api/pulse-oximeter/phantich2`)
+    .then((res) => {
+      if (res.data) {
+        return res.data;
+      } else {
+        return null;
+      }
+    })
+    .catch((error) => {
+      return null;
+    });
+}
+
+
 export function getHistory(date) {
   return axios.get(`${COMMON_APP.HOST_API}${API.PULSE_OXIMETER}/1?date=${date}`).then(res => {
     if (res.data)

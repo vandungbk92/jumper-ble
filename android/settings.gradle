@@ -1,4 +1,8 @@
 rootProject.name = 'tHospital'
+include ':react-native-pdf'
+project(':react-native-pdf').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-pdf/android')
+include ':react-native-blob-util'
+project(':react-native-blob-util').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-blob-util/android')
 
 apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle");
 useExpoModules()

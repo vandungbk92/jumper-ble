@@ -38,6 +38,7 @@ const {width: screenWidth, height: screenHeight} = Dimensions.get("screen");
 const filePath = RNFS.DocumentDirectoryPath + "/data.txt";
 
 import BlueModal from './BlueModal';
+import {COMMON_APP} from "../../constants";
 
 export default function PulseOximeter(props) {
   const [device, setDevice] = useState(null); // Thông tin device đang kết nối
@@ -89,7 +90,7 @@ export default function PulseOximeter(props) {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         return true
       } else {
-        alert("Vui long bật quyền truy cập vị trí");
+        alert("Vui lòng bật quyền truy cập vị trí");
         return false
       }
     } catch (err) {
@@ -205,7 +206,6 @@ export default function PulseOximeter(props) {
           "utf8"
         )
           .then((success) => {
-            console.log(data.time.format('mm:ss'))
             if(typeRecord === 3 && data.time.format('ss') === "59"){
               let fileNm = data.time.format('YYYYMMDDHHmm') + '.txt';
               handleUplToServer(url, fileNm);
@@ -225,14 +225,15 @@ export default function PulseOximeter(props) {
     // lấy danh sách các file trong thư mục.
     let result = await RNFS.readDir(RNFS.DocumentDirectoryPath);
     result.forEach(curr => {
-      if(curr.isFile() && curr?.name?.split('.')?.pop() === 'txt'){
-        RNFS.readFile(curr.path, "utf8")
+      if(curr.isFile() && (curr?.name?.split('.')?.pop() === 'jpeg' || curr?.name?.split('.')?.pop() === 'pdf')){
+        console.log(curr, 'currcurrcurr')
+        /*RNFS.readFile(curr.path, "utf8")
           .then((result) => {
             console.log(curr, curr.path);
           })
           .catch((err) => {
             console.log(err.message, err.code, 'err');
-          });
+          });*/
       }
     })
   };
@@ -268,7 +269,17 @@ export default function PulseOximeter(props) {
         typeRecord
       );
       if(data && data.success){
+        // sau khi upload file thành công
+        // B1. xóa file
         await deleteFile(fileUri);
+        // B2. download file oximeter_id
+        let oximeter_id = data.oximeter_id;
+        let path = RNFS.DocumentDirectoryPath + `/${oximeter_id}.pdf`;
+        await RNFS.downloadFile({
+          fromUrl: `${COMMON_APP.HOST_API}/api/pulse-oximeter/phantich/${oximeter_id}`,
+          toFile: path,
+          cacheable: false
+        });
       }
     }
   };
@@ -647,15 +658,15 @@ export default function PulseOximeter(props) {
             text={typeRecord !== 1 ? "Dừng và lưu dữ liệu" : "Dừng đọc dữ liệu"}
             onPress={() => stopConnect()}
           /> : <View style={[tw.flexRow, tw.justifyCenter]}>
-
             <GradientButton
               style={{margin: 4}}
-              text={"Quét ghi dữ liệu"}
-              onPress={docdulieuFunc}
+              text={"Đọc dữ liệu"}
+              // onPress={docdulieuFunc}
+              onPress={() => showModalFunc(2)}
             />
             <GradientButton
               style={{margin: 4}}
-              text={"Quét phân tích"}
+              text={"Theo dõi SPO2"}
               onPress={() => showModalFunc(3)}
             />
           </View>

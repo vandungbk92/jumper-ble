@@ -43,6 +43,18 @@ export default class HistoryScreen extends React.Component {
         Lịch sử SPO2
       </RkText>
     ),
+    headerRight: () => (
+      <TouchableOpacity
+        style={styleContainer.headerButton}
+        onPress={() => navigation.navigate('HOME_PAGE')}
+      >
+        <Ionicons
+          name="ios-home"
+          size={20}
+          color={KittenTheme.colors.appColor}
+        />
+      </TouchableOpacity>
+    ),
   });
 
   constructor(props) {
@@ -116,6 +128,9 @@ export default class HistoryScreen extends React.Component {
       if(data && data.measurementDate){
         query = `&measurementDate=${data.measurementDate}`
       }
+      if(data && data.typeRecord){
+        query = `&typeRecord=${data.typeRecord}`
+      }
       const responseData = await getOximeterData(this.page, 10, query);
       if (responseData && responseData.docs) {
         return responseData;
@@ -153,13 +168,18 @@ export default class HistoryScreen extends React.Component {
         >
           <CircularProgress
             value={item.avgSpO2}
-            progressValueColor={"#92BA92"}
+            // progressValueColor={"#92BA92"}
             maxValue={100}
             valueSuffix={"%"}
-            inActiveStrokeColor={"#2ecc71"}
-            inActiveStrokeOpacity={0.2}
+            // inActiveStrokeColor={"#2ecc71"}
+            inActiveStrokeOpacity={1}
             radius={screenWidth * 0.12}
             circleBackgroundColor={"white"}
+
+            inActiveStrokeColor={"#bfbfbf"}
+            progressValueColor={"#096dd9"}
+            activeStrokeColor={'#ff4d4f'}
+            activeStrokeSecondaryColor={'#1890ff'}
           />
         </View>
         <View

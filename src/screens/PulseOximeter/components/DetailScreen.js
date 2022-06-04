@@ -380,4 +380,16 @@ DetailScreen.navigationOptions = ({navigation}) => ({
     </TouchableOpacity>
   ),
   headerTitle: () => <RkText rkType="header4">{I18n.t("Chi tiết")}</RkText>,
+  headerRight: () => (
+    <TouchableOpacity
+      style={styleContainer.headerButton}
+      onPress={() => navigation.navigate('HOME_PAGE')}
+    >
+      <Ionicons
+        name="ios-home"
+        size={20}
+        color={KittenTheme.colors.appColor}
+      />
+    </TouchableOpacity>
+  ),
 });

@@ -49,7 +49,7 @@ export default function DetailAnalysisScreen(props) {
             <Text style={{color: "white"}}>Nhật ký giấc ngủ</Text>
             <TouchableOpacity style={{flexDirection: "row", alignItems: "center"}}>
               <Text style={{color: "white", fontSize: 18}}>
-                {moment().format("dd DD MMMM YYYY")}
+                {moment(item?.measurementDate).format("dd DD MMMM YYYY")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -68,14 +68,14 @@ export default function DetailAnalysisScreen(props) {
               value={item?.avgSpO2}
               title={'SP02 trung bình'}
               titleStyle={{fontSize: 10}}
-              progressValueColor={"#92BA92"}
               maxValue={100}
               valueSuffix={"%"}
-              inActiveStrokeColor={"#2ecc71"}
               inActiveStrokeOpacity={0.2}
               radius={screenWidth * 0.25 - 5}
-              activeStrokeColor={'#2465FD'}
-              activeStrokeSecondaryColor={'#C25AFF'}
+              inActiveStrokeColor={"#2ecc71"}
+              progressValueColor={"#096dd9"}
+              activeStrokeColor={'red'}
+              activeStrokeSecondaryColor={'#1890ff'}
             />
           </View>
         </View>
@@ -267,8 +267,7 @@ export default function DetailAnalysisScreen(props) {
 
               <View>
                 <View style={tw.flexRow}>
-                  <View style={{flex: 4,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}
-                  >
+                  <View style={{flex: 4,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}>
                     <Text style={[tw.textRed500, tw.textBase, {marginHorizontal: 4}]}>
                       - Trung bình mỗi lần dưới ngưỡng
                     </Text>
@@ -288,7 +287,8 @@ export default function DetailAnalysisScreen(props) {
         style={{margin: 4}}
         text={"Chi tiết"}
         onPress={() => props.navigation.navigate(HISTORY_PAGE, {
-          measurementDate: item?.measurementDate
+          measurementDate: item?.measurementDate,
+          typeRecord: 3
         })}
       />
     </View>
@@ -322,4 +322,16 @@ DetailAnalysisScreen.navigationOptions = ({navigation}) => ({
     </TouchableOpacity>
   ),
   headerTitle: () => <RkText rkType="header4">{I18n.t("Phân tích SP02")}</RkText>,
+  headerRight: () => (
+    <TouchableOpacity
+      style={styleContainer.headerButton}
+      onPress={() => navigation.navigate('HOME_PAGE')}
+    >
+      <Ionicons
+        name="ios-home"
+        size={20}
+        color={KittenTheme.colors.appColor}
+      />
+    </TouchableOpacity>
+  ),
 });
