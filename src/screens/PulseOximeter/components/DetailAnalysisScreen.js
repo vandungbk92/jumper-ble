@@ -21,6 +21,8 @@ const {width: screenWidth, height: screenHeight} = Dimensions.get("window");
 
 export default function DetailAnalysisScreen(props) {
   const item = props?.navigation?.state?.params || {};
+
+  console.log(item, 'itemitemitem')
   return (
     <View style={tw.flex1}>
       <ImageBackground
@@ -82,18 +84,39 @@ export default function DetailAnalysisScreen(props) {
       </ImageBackground>
 
       <ScrollView style={{flex: 1}}>
-        <Text
-          style={{
-            alignSelf: "center",
-            fontSize: 20,
-            color: "#069A8E",
-          }}
-        >
-          Chỉ số Oxi trong máu ổn định
-        </Text>
-        <Text style={{alignSelf: "center", color: "#069A8E"}}>
-          Khoẻ mạnh
-        </Text>
+        {
+          (item.avgSpO2 >= item.oximeterMonitor) ?
+            <View>
+              <Text
+                style={{
+                  alignSelf: "center",
+                  fontSize: 20,
+                  color: "#069A8E",
+                }}
+              >
+                Chỉ số Oxi trong máu ổn định
+              </Text>
+              <Text style={{alignSelf: "center", color: "#069A8E"}}>
+                Khoẻ mạnh
+              </Text>
+            </View> :
+            <View>
+              <Text
+                style={{
+                  alignSelf: "center",
+                  fontSize: 20,
+                  color: "#ff7a45",
+                }}
+              >
+                Chỉ số Oxi trong máu không ổn định
+              </Text>
+              <Text style={{alignSelf: "center", color: "#ff7a45"}}>
+                Cần theo dõi
+              </Text>
+            </View>
+        }
+
+
         <View
           style={{
             flex: 1,
@@ -168,8 +191,8 @@ export default function DetailAnalysisScreen(props) {
                 <View style={tw.flexRow}>
                   <View style={{flex: 4,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}
                   >
-                    <Ionicons name="leaf-outline" size={24} color="#FEB139"/>
-                    <Text style={{marginHorizontal: 4, color: "#FEB139"}}>
+                    <Ionicons name="heart-circle-outline" size={24} color="#5b8c00" />
+                    <Text style={{marginHorizontal: 4, color: "#5b8c00"}}>
                       Chỉ số PI ({item?.avgPI.toFixed(1)})
                     </Text>
                   </View>
@@ -188,25 +211,23 @@ export default function DetailAnalysisScreen(props) {
                   thumbStyle={[
                     customStyles3.thumb,
                     {
-                      backgroundColor: "#FEB139",
+                      backgroundColor: "#5b8c00",
                     },
                   ]}
-                  minimumTrackTintColor="#FEB139"
+                  minimumTrackTintColor="#5b8c00"
                   disabled={true}
                 />
               </View>
             </View>
 
             <View>
-
-              <RkText rkType="bold" style={tw.pX4}>Chi tiết phân tích</RkText>
-
-              <View>
+              <View style={{paddingHorizontal: 16}}>
                 <View style={tw.flexRow}>
                   <View style={{flex: 4,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}
                   >
-                    <Text style={[tw.textRed500, tw.textBase, {marginHorizontal: 4}]}>
-                      - Tổng số lần đo
+                    <FontAwesome5 name="head-side-mask" size={20} color="#2f54eb" />
+                    <Text style={{marginHorizontal: 4, color: "#2f54eb"}}>
+                      Số lần đo
                     </Text>
                   </View>
                   <View style={{flex: 1, alignSelf: "flex-end", paddingHorizontal: 16,}}>
@@ -215,14 +236,32 @@ export default function DetailAnalysisScreen(props) {
                     </Text>
                   </View>
                 </View>
+                <Slider
+                  value={7}
+                  style={{height: 40}}
+                  minimumValue={0}
+                  maximumValue={7}
+                  trackStyle={customStyles3.track}
+                  thumbStyle={[
+                    customStyles3.thumb,
+                    {
+                      backgroundColor: "#2f54eb",
+                    },
+                  ]}
+                  minimumTrackTintColor="#2f54eb"
+                  disabled={true}
+                />
               </View>
+            </View>
 
-              <View>
+            <View>
+              <View style={{paddingHorizontal: 16}}>
                 <View style={tw.flexRow}>
                   <View style={{flex: 4,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}
                   >
-                    <Text style={[tw.textRed500, tw.textBase, {marginHorizontal: 4}]}>
-                      - Tổng số lần SP02 dưới ngưỡng
+                    <Ionicons name="md-warning-outline" size={24} color="#eb2f96"/>
+                    <Text style={{marginHorizontal: 4, color: "#eb2f96"}}>
+                      Tổng số lần SP02 {"<="} {item.oximeterMonitor}%
                     </Text>
                   </View>
                   <View style={{flex: 1, alignSelf: "flex-end", paddingHorizontal: 16,}}>
@@ -231,53 +270,89 @@ export default function DetailAnalysisScreen(props) {
                     </Text>
                   </View>
                 </View>
+                <Slider
+                  value={7}
+                  style={{height: 40}}
+                  minimumValue={0}
+                  maximumValue={7}
+                  trackStyle={customStyles3.track}
+                  thumbStyle={[
+                    customStyles3.thumb,
+                    {
+                      backgroundColor: "#eb2f96",
+                    },
+                  ]}
+                  minimumTrackTintColor="#eb2f96"
+                  disabled={true}
+                />
               </View>
+            </View>
 
-              <View>
-                <View style={tw.flexRow}>
-                  <View style={{flex: 3,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}
-                  >
-                    <Text style={[tw.textRed500, tw.textBase, {marginHorizontal: 4}]}>
-                      - Tổng thời gian dưới ngưỡng
-                    </Text>
-                  </View>
-                  <View style={{flex: 2, alignSelf: "flex-end", paddingHorizontal: 16,}}>
-                    <Text style={{alignSelf: "flex-end"}}>
-                      {item?.totalTimeBelowThreshold}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              <View>
+            <View>
+              <View style={{paddingHorizontal: 16}}>
                 <View style={tw.flexRow}>
                   <View style={{flex: 4,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}
                   >
-                    <Text style={[tw.textRed500, tw.textBase, {marginHorizontal: 4}]}>
-                      - Thời gian dưới ngưỡng dài nhất
+                    <Ionicons name="timer" size={24} color="#fa8c16"/>
+                    <Text style={{marginHorizontal: 4, color: "#fa8c16"}}>
+                      Thời gian dưới ngưỡng dài nhất
                     </Text>
                   </View>
-                  <View style={{flex: 2, alignSelf: "flex-end", paddingHorizontal: 16,}}>
+                  <View style={{flex: 1, alignSelf: "flex-end", paddingHorizontal: 16,}}>
                     <Text style={{alignSelf: "flex-end"}}>
                       {item?.maxTimeRange}
                     </Text>
                   </View>
                 </View>
+                <Slider
+                  value={7}
+                  style={{height: 40}}
+                  minimumValue={0}
+                  maximumValue={7}
+                  trackStyle={customStyles3.track}
+                  thumbStyle={[
+                    customStyles3.thumb,
+                    {
+                      backgroundColor: "#fa8c16",
+                    },
+                  ]}
+                  minimumTrackTintColor="#fa8c16"
+                  disabled={true}
+                />
               </View>
+            </View>
 
-              <View>
+            <View>
+              <View style={{paddingHorizontal: 16}}>
                 <View style={tw.flexRow}>
-                  <View style={{flex: 4,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}>
-                    <Text style={[tw.textRed500, tw.textBase, {marginHorizontal: 4}]}>
-                      - Trung bình mỗi lần dưới ngưỡng
+                  <View style={{flex: 4,flexDirection: "row", alignItems: "center", paddingHorizontal: 16}}
+                  >
+                    <Ionicons name="timer-outline" size={24} color="#FEB139"/>
+                    <Text style={{marginHorizontal: 4, color: "#FEB139"}}>
+                      Trung bình mỗi lần {"<="} {item.oximeterMonitor}%
                     </Text>
                   </View>
-                  <View style={{flex: 2, alignSelf: "flex-end", paddingHorizontal: 16,}}>
+                  <View style={{flex: 1, alignSelf: "flex-end", paddingHorizontal: 16,}}>
                     <Text style={{alignSelf: "flex-end"}}>
                       {item?.avgTimeBelowThreshold}
                     </Text>
                   </View>
                 </View>
+                <Slider
+                  value={7}
+                  style={{height: 40}}
+                  minimumValue={0}
+                  maximumValue={7}
+                  trackStyle={customStyles3.track}
+                  thumbStyle={[
+                    customStyles3.thumb,
+                    {
+                      backgroundColor: "#FEB139",
+                    },
+                  ]}
+                  minimumTrackTintColor="#FEB139"
+                  disabled={true}
+                />
               </View>
             </View>
           </View>
